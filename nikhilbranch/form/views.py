@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from qr.models import Product, Category
 from django.contrib import messages
 
@@ -50,3 +50,39 @@ def product_list(request):
     """View to display all products in the database"""
     products = Product.objects.all()
     return render(request, "product_list.html", {'products': products})
+
+def edit_product(request, product_id):
+    """View to edit an existing product"""
+    # Get the product or return 404 if not found
+    product = get_object_or_404(Product, id=product_id)
+    categories = Category.objects.all()
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            product.name = request.POST.get('name')
+            product.description = request.POST.get('description')
+            product.price = request.POST.get('price')
+            category_id = request.POST.get('category')
+            product.farmer_name = request.POST.get('farmer_name')
+            
+            # Get category
+            product.category = Category.objects.get(id=category_id)
+            
+            # Handle image if a new one is uploaded
+            if 'image' in request.FILES:
+                product.image = request.FILES['image']
+                
+            # Save updated product
+            product.save()
+            
+            messages.success(request, 'Product updated successfully!')
+            return redirect('product_list')
+        except Exception as e:
+            messages.error(request, f'Error updating product: {str(e)}')
+    
+    # Render the edit form with the product data
+    return render(request, "edit_product.html", {
+        'product': product,
+        'categories': categories
+    })

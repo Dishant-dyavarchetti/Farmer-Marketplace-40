@@ -5,11 +5,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
-    <h2>Product Details</h2>
-    <div id="productInfo">Loading...</div>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8 px-4">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Product Details</h1>
+                </div>
+                
+                <div id="productInfo" class="flex flex-col md:flex-row gap-8">
+                    <div class="animate-pulse flex-1">
+                        <div class="h-48 md:h-full bg-gray-200 rounded-lg"></div>
+                    </div>
+                    <div class="animate-pulse flex-1">
+                        <div class="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+                        <div class="h-4 bg-gray-200 rounded w-5/6 mb-3"></div>
+                        <div class="h-4 bg-gray-200 rounded w-2/3 mb-3"></div>
+                        <div class="h-10 bg-gray-200 rounded w-1/4 mt-6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <script src="{% static 'products.js' %}"></script>
+    <script>
+        // Update this function to better render the product data
+        async function displayProductDetails() {
+            // Get Product ID from URL
+            const pathParts = window.location.pathname.split('/');
+            let productId = null;
+            
+            for (let i = 0; i < pathParts.length; i++) {
+                if (pathParts[i] === 'product' && i + 1 < pathParts.length) {
+                    productId = pathParts[i + 1];
+                    break;
+                }
+            }
+            
+            if (!productId) {
+                document.getElementById("productInfo").innerHTML = `
+                    <div class="p-6 bg-red-100 text-red-700 rounded-lg">
+                        No product found!
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/product/${productId}/`);
+                const data = await response.json();
+
+                document.getElementById("productInfo").innerHTML = `
+                    <div class="md:w-1/2 mb-6 md:mb-0">
+                        ${data.image_url ? 
+                            `<img src="${data.image_url}" alt="${data.name}" class="w-full h-auto rounded-lg shadow-md">` : 
+                            `<div class="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span class="text-gray-500">No image available</span>
+                            </div>`
+                        }
+                    </div>
+                    <div class="md:w-1/2">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">${data.name}</h2>
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm inline-block mb-4">
+                            ${data.category}
+                        </div>
+                        <p class="text-gray-600 mb-6">${data.description}</p>
+                        
+                        <div class="mb-6">
+                            <p class="mb-1"><span class="font-semibold">Farmer:</span> ${data.farmer_name}</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <span class="text-2xl font-bold text-green-600">₹${data.price}/KG</span>
+                        </div>
+                        <div class="flex space-x-2 mt-4">
+                            <a href="/form/edit_product/${productId}/" class="flex-1 py-2 text-center text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition">
+                                Edit Product
+                            </a>
+                            <a href="/form/products/" class="flex-1 py-2 text-center text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">
+                                Back to List
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById("productInfo").innerHTML = `
+                    <div class="p-6 bg-red-100 text-red-700 rounded-lg">
+                        Error fetching product!
+                    </div>
+                `;
+                console.error("Fetch error:", error);
+            }
+        }
+        
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', displayProductDetails);
+    </script>
 </body>
 </html>

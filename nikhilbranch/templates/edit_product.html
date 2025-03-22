@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+    <body class="flex justify-center items-center min-h-screen bg-gray-100">
+
+        <div class="relative p-10 bg-white rounded-2xl shadow-lg max-w-lg w-full">
+            <!-- Decorative Background -->
+            <div class="absolute inset-0 -z-10 transform rotate-6 bg-green-500 rounded-2xl"></div>
+    
+            <h2 class="text-xl font-semibold text-gray-800">
+                <span class="text-green-600 font-bold">Edit</span> product
+            </h2>
+    
+            <!-- Display messages if any -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mt-4 p-3 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form class="mt-5 space-y-4" method="POST" action="{% url 'edit_product' product.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label class="block font-medium text-gray-700">Product Name*</label>
+                    <input type="text" name="name" value="{{ product.name }}" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                </div>
+                
+                <div>
+                    <label class="block font-medium text-gray-700">Product Description*</label>
+                    <textarea name="description" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>{{ product.description }}</textarea>
+                </div>
+    
+                <div>
+                    <label class="block font-medium text-gray-700">Product Price*</label>
+                    <input type="number" name="price" value="{{ product.price }}" step="0.01" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700">Category*</label>
+                    <select name="category" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category.id == product.category.id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700">Farmer Name*</label>
+                    <input type="text" name="farmer_name" value="{{ product.farmer_name }}" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700">Current Image</label>
+                    {% if product.image %}
+                        <div class="mt-2 mb-2">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-32 h-32 object-cover rounded-md">
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500 mt-1">No image currently uploaded</p>
+                    {% endif %}
+                    
+                    <label class="block font-medium text-gray-700 mt-4">Upload New Image (optional)</label>
+                    <input type="file" name="image" accept=".jpg, .jpeg, .png" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none">
+                    <p class="text-sm text-gray-500 mt-1">Leave empty to keep the current image</p>
+                </div>
+    
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 py-3 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
+                        Update Product
+                    </button>
+                    <a href="{% url 'product_list' %}" class="flex-1 py-3 text-center text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    
+    </body>
+</body>
+</html> 

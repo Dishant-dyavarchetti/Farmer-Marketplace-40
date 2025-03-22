@@ -9,9 +9,11 @@ def product_details(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     data = {
         "name": product.name,
-        "farmer_name": product.farmer_name,
+        "farmer_name": product.farmer_name or "Unknown",
         "price": product.price,
-
+        "description": product.description,
+        "category": product.category.name,
+        "image_url": product.image.url if product.image else None,
     }
     return JsonResponse(data)   
 

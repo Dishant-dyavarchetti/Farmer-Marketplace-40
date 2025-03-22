@@ -20,7 +20,9 @@
         {% if products %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for product in products %}
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden relative">
+                        <!-- Remove edit button from top right -->
+                        
                         {% if product.image %}
                             <div class="h-48 overflow-hidden">
                                 <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
@@ -46,6 +48,15 @@
                                 {% if product.farmer_name %}
                                     <span class="text-sm text-gray-500">Farmer: {{ product.farmer_name }}</span>
                                 {% endif %}
+                            </div>
+                            
+                            <div class="mt-4 flex space-x-2">
+                                <a href="{% url 'product_page' product.id %}" class="flex-1 py-2 text-center text-white bg-blue-600 rounded-md hover:bg-blue-700 transition text-sm">
+                                    View Details
+                                </a>
+                                <a href="{% url 'edit_product' product.id %}" class="flex-1 py-2 text-center text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition text-sm">
+                                    Edit
+                                </a>
                             </div>
                         </div>
                     </div>
