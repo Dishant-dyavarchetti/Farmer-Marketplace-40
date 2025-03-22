@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MADHYAMUKT - Natural Farming Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                light: '#4caf50',
+                DEFAULT: '#2e7d32',
+                dark: '#1b5e20',
+              },
+              secondary: {
+                light: '#fff8e1',
+                DEFAULT: '#ffd54f',
+                dark: '#ffb300',
+              },
+            },
+            fontFamily: {
+              sans: ['Segoe UI', 'system-ui', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
