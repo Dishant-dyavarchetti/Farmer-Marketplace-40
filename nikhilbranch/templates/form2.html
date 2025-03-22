@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,34 +15,70 @@
             <div class="absolute inset-0 -z-10 transform rotate-6 bg-green-500 rounded-2xl"></div>
     
             <h2 class="text-xl font-semibold text-gray-800">
-                <span class="text-green-600 font-bold">Get Help?</span> Please Write Your Subject, Message & Notify Your Email.
+                <span class="text-green-600 font-bold">Add</span> your product here.
             </h2>
     
-            <form class="mt-5 space-y-4">
+            <!-- Display messages if any -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mt-4 p-3 {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-md">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if categories %}
+            <form class="mt-5 space-y-4" method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div>
-                    <label class="block font-medium text-gray-700">Full Name*</label>
-                    <input type="text" placeholder="Type Name" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none">
+                    <label class="block font-medium text-gray-700">Product Name*</label>
+                    <input type="text" name="name" placeholder="Product Name" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
                 </div>
                 
                 <div>
-                    <label class="block font-medium text-gray-700">Email*</label>
-                    <input type="email" placeholder="Type Your Email" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none">
+                    <label class="block font-medium text-gray-700">Product Description*</label>
+                    <textarea name="description" placeholder="Type Product Description" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required></textarea>
                 </div>
     
                 <div>
-                    <label class="block font-medium text-gray-700">Subject*</label>
-                    <input type="text" placeholder="Type Here" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none">
+                    <label class="block font-medium text-gray-700">Product Price*</label>
+                    <input type="number" name="price" placeholder="Enter price here" step="0.01" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
                 </div>
-    
+
                 <div>
-                    <label class="block font-medium text-gray-700">Your Message*</label>
-                    <textarea placeholder="Type Here" rows="4" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+                    <label class="block font-medium text-gray-700">Category*</label>
+                    <select name="category" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                        <option value="">Select a category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700">Farmer Name*</label>
+                    <input type="text" name="farmer_name" placeholder="Enter farmer name" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700">Product Image*</label>
+                    <input type="file" name="image" accept=".jpg, .jpeg, .png" class="w-full mt-1 p-3 border rounded-md focus:ring-2 focus:ring-green-500 outline-none" required>
                 </div>
     
                 <button type="submit" class="w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
-                    Send Message
+                    Add Product
                 </button>
             </form>
+            
+            <div class="mt-4 text-center">
+                <a href="{% url 'product_list' %}" class="text-green-600 hover:underline">View all products</a>
+            </div>
+            
+            {% else %}
+            <div class="mt-5 p-4 bg-yellow-100 text-yellow-800 rounded-md">
+                <p class="mb-2">There are no categories available. Please contact an administrator to add categories.</p>
+            </div>
+            {% endif %}
         </div>
     
     </body>

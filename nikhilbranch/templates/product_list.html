@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="container mx-auto py-8 px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Product List</h1>
+            <a href="{% url 'forms' %}" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition">
+                Add New Product
+            </a>
+        </div>
+
+        {% if products %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for product in products %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        {% if product.image %}
+                            <div class="h-48 overflow-hidden">
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            </div>
+                        {% else %}
+                            <div class="h-48 bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-500">No image available</span>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
+                                <h2 class="text-xl font-semibold text-gray-800">{{ product.name }}</h2>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                    {{ product.category.name }}
+                                </span>
+                            </div>
+                            
+                            <p class="mt-2 text-sm text-gray-600 line-clamp-3">{{ product.description }}</p>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-lg font-bold text-green-600">₹{{ product.price }}/KG</span>
+                                {% if product.farmer_name %}
+                                    <span class="text-sm text-gray-500">Farmer: {{ product.farmer_name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-yellow-100 text-yellow-800 p-4 rounded-md">
+                <p>No products available. Add your first product!</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html> 
