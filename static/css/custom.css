@@ -1,0 +1,35 @@
+/* Custom CSS styles that will be applied alongside Tailwind CSS */
+
+/* Example custom styles */
+.custom-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.custom-button {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.custom-button:hover {
+    background-color: #ee5253;
+}
+
+/* You can also override Tailwind styles if needed */
+.text-custom {
+    color: #6c5ce7;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+} 
