@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Natural Farming Marketplace</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .admin-nav-item.active {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
+                    <span class="ml-3 bg-amber-400 text-emerald-900 px-3 py-1 rounded-md font-semibold">Admin Panel</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg">Welcome, {{ request.user.username }}</span>
+                    <a href="/admin-portal/logout/" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Side Navigation -->
+        <aside class="w-64 bg-emerald-700 text-white min-h-screen">
+            <div class="p-4 border-b border-emerald-600">
+                <h2 class="text-xl font-bold">Admin Controls</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="/admin-portal/dashboard" class="admin-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    Dashboard Overview
+                </a>
+                <a href="/admin-portal/farmer-verification" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Farmer Verification
+                </a>
+                <a href="/admin-portal/product-approval" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    Product Approval
+                </a>
+                <a href="/admin-portal/manage-users" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    Manage Users
+                </a>
+                <a href="/admin-portal/orders" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    Order Management
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-amber-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">PENDING FARMERS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">12</div>
+                        <span class="ml-2 bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">Awaiting Verification</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">APPROVED FARMERS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">68</div>
+                        <span class="ml-2 bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded">Active</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">PRODUCTS PENDING</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">24</div>
+                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">Awaiting Approval</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">TOTAL CONSUMERS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">156</div>
+                        <span class="ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Registered</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pending Farmers Section -->
+            <section class="bg-white rounded-lg shadow-md mb-8">
+                <div class="border-b px-6 py-3 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Pending Farmer Verifications</h2>
+                    <a href="/admin-portal/farmer-verification" class="text-emerald-600 hover:text-emerald-800 font-medium">View All</a>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">FARMER NAME</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">LOCATION</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">DOCUMENTS</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">DATE APPLIED</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Rajesh Kumar</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Maharashtra</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">NPOP Certificate</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">24 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Meena Patel</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Gujarat</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">NPOP Certificate</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">22 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Suresh Reddy</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Telangana</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">NPOP Certificate</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">20 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Products Pending Approval Section -->
+            <section class="bg-white rounded-lg shadow-md">
+                <div class="border-b px-6 py-3 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Products Pending Approval</h2>
+                    <a href="/admin-portal/product-approval" class="text-emerald-600 hover:text-emerald-800 font-medium">View All</a>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">PRODUCT NAME</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">FARMER</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">CATEGORY</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">DATE SUBMITTED</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Organic Basmati Rice</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Ramesh Singh</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Grains</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">25 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Natural Honey</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Lakshmi Devi</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Dairy & Honey</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">24 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 text-sm text-gray-800">Organic Turmeric Powder</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Prakash Joshi</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">Spices</td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">23 Apr 2023</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex space-x-2">
+                                            <button class="px-3 py-1 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600">Approve</button>
+                                            <button class="px-3 py-1 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600">Reject</button>
+                                            <button class="px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600">View</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html> 

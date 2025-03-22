@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard - Natural Farming Marketplace</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .farmer-nav-item.active {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
+                    <span class="ml-3 bg-amber-400 text-emerald-900 px-3 py-1 rounded-md font-semibold">Farmer Portal</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg">Welcome, {{ request.user.username }}</span>
+                    <a href="/logout/" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Side Navigation -->
+        <aside class="w-64 bg-emerald-700 text-white min-h-screen">
+            <div class="p-4 border-b border-emerald-600">
+                <h2 class="text-xl font-bold">Farmer Controls</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="/farmer-portal/dashboard" class="farmer-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    Dashboard Overview
+                </a>
+                <a href="/farmer-portal/verification-status" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Verification Status
+                </a>
+                <a href="/farmer-portal/product-management" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    Product Management
+                </a>
+                <a href="/farmer-portal/orders" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    Orders Received
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Farmer Dashboard</h1>
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">VERIFICATION STATUS</h2>
+                    <div class="flex items-center">
+                        <div class="text-lg font-bold text-amber-600">Pending Review</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-amber-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">ACTIVE PRODUCTS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">8</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">PENDING ORDERS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">3</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">TOTAL SALES (₹)</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">₹14,250</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Verification Status Card -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+                <div class="px-6 py-4 bg-emerald-700 text-white flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">Certification & Verification</h2>
+                    <span class="px-3 py-1 bg-amber-400 text-emerald-900 rounded-full text-sm font-semibold">Status: Pending</span>
+                </div>
+                
+                {% if not farmer_verified %}
+                <div class="p-6">
+                    <div class="mb-6">
+                        <p class="text-gray-700 mb-4">To sell products on our platform, you need to verify your organic farming status. Please upload your NPOP or PGS India certification documents below.</p>
+                        
+                        <form action="/farmer-portal/submit-verification" method="POST" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            <!-- Certification Type Selection -->
+                            <div>
+                                <label for="certification_type" class="block text-sm font-medium text-gray-700 mb-1">Certification Type</label>
+                                <select id="certification_type" name="certification_type" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-emerald-500 focus:border-emerald-500">
+                                    <option value="">Select Certification Type</option>
+                                    <option value="npop">NPOP (National Programme for Organic Production)</option>
+                                    <option value="pgs">PGS India (Participatory Guarantee System)</option>
+                                    <option value="other">Other Organic Certification</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Certification ID -->
+                            <div>
+                                <label for="certification_id" class="block text-sm font-medium text-gray-700 mb-1">Certification ID/Number</label>
+                                <input type="text" id="certification_id" name="certification_id" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-emerald-500 focus:border-emerald-500" placeholder="e.g. NPOP/2023/12345">
+                            </div>
+                            
+                            <!-- Valid Until Date -->
+                            <div>
+                                <label for="valid_until" class="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
+                                <input type="date" id="valid_until" name="valid_until" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            
+                            <!-- Certificate Document Upload -->
+                            <div>
+                                <label for="certificate_document" class="block text-sm font-medium text-gray-700 mb-1">Upload Certificate (PDF format)</label>
+                                <input type="file" id="certificate_document" name="certificate_document" accept=".pdf" required class="w-full border border-gray-300 rounded-md py-2 px-3">
+                                <p class="mt-1 text-sm text-gray-500">Please upload a clear scan or photo of your certification document (Max size: 5MB)</p>
+                            </div>
+                            
+                            <!-- Additional Supporting Documents -->
+                            <div>
+                                <label for="supporting_documents" class="block text-sm font-medium text-gray-700 mb-1">Additional Supporting Documents (Optional)</label>
+                                <input type="file" id="supporting_documents" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png" multiple class="w-full border border-gray-300 rounded-md py-2 px-3">
+                                <p class="mt-1 text-sm text-gray-500">You can upload additional supporting documents if necessary (Max size: 10MB total)</p>
+                            </div>
+                            
+                            <!-- Farm Description -->
+                            <div>
+                                <label for="farm_description" class="block text-sm font-medium text-gray-700 mb-1">Farm Description</label>
+                                <textarea id="farm_description" name="farm_description" rows="4" class="w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-emerald-500 focus:border-emerald-500" placeholder="Tell us about your farm, farming practices, and the types of products you grow..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                    Submit for Verification
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="p-6">
+                    <div class="mb-6">
+                        <div class="p-4 bg-amber-50 border-l-4 border-amber-400">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-amber-700">
+                                        Your verification documents are currently under review. We'll notify you once the verification process is complete.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Submitted Information</h3>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">Certification Type</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">NPOP (National Programme for Organic Production)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">Certification ID</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">NPOP/2023/12345</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">Valid Until</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">31 Dec 2024</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">Submitted Documents</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <a href="#" class="text-emerald-600 hover:text-emerald-900">View Certificate</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Recent Orders Summary -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-emerald-700 text-white">
+                    <h2 class="text-xl font-semibold">Recent Orders</h2>
+                </div>
+                <div class="p-6">
+                    {% if recent_orders %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-0042</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Priya Sharma</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Organic Rice (5kg), Turmeric (500g)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹850</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-emerald-600 hover:text-emerald-900">View Details</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-0038</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rahul Verma</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Organic Honey (1kg)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹650</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Shipped</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <a href="#" class="text-emerald-600 hover:text-emerald-900">View Details</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="/farmer-portal/orders" class="text-emerald-600 hover:text-emerald-900 font-medium">View All Orders →</a>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No orders yet</h3>
+                        <p class="mt-1 text-sm text-gray-500">Once you start receiving orders, they will appear here.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html> 

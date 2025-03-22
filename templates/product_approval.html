@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Approval - Natural Farming Marketplace</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .admin-nav-item.active {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
+                    <span class="ml-3 bg-amber-400 text-emerald-900 px-3 py-1 rounded-md font-semibold">Admin Panel</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg">Welcome, {{ request.user.username }}</span>
+                    <a href="/admin-portal/logout/" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Side Navigation -->
+        <aside class="w-64 bg-emerald-700 text-white min-h-screen">
+            <div class="p-4 border-b border-emerald-600">
+                <h2 class="text-xl font-bold">Admin Controls</h2>
+            </div>
+            <nav class="mt-4">
+                <a href="/admin-portal/dashboard" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    Dashboard Overview
+                </a>
+                <a href="/admin-portal/farmer-verification" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Farmer Verification
+                </a>
+                <a href="/admin-portal/product-approval" class="admin-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    Product Approval
+                </a>
+                <a href="/admin-portal/manage-users" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    Manage Users
+                </a>
+                <a href="/admin-portal/orders" class="admin-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                    <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    Order Management
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Product Approval</h1>
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-amber-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">PENDING APPROVALS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">18</div>
+                        <span class="ml-2 bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">Awaiting Review</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">APPROVED PRODUCTS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">124</div>
+                        <span class="ml-2 bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded">Live</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                    <h2 class="text-gray-600 text-sm font-semibold mb-2">REJECTED PRODUCTS</h2>
+                    <div class="flex items-center">
+                        <div class="text-3xl font-bold text-gray-800">9</div>
+                        <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">Not Approved</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Pending Approval -->
+            <section class="bg-white rounded-lg shadow-md mb-8">
+                <div class="border-b px-6 py-3 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Products Pending Approval</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Product Card 1 -->
+                        <div class="bg-white border rounded-lg overflow-hidden shadow-md">
+                            <div class="relative h-48 bg-gray-200">
+                                <img src="https://via.placeholder.com/400x300/e2f1e7/047857?text=Organic+Rice" alt="Organic Rice" class="w-full h-full object-cover">
+                                <span class="absolute top-2 right-2 bg-amber-400 text-emerald-900 text-xs font-bold px-2 py-1 rounded">PENDING</span>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Organic Rice</h3>
+                                    <span class="text-emerald-600 font-bold">₹120/kg</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Farmer:</span>
+                                        <span class="ml-1">Rajesh Kumar</span>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Location:</span>
+                                        <span class="ml-1">Nashik, Maharashtra</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">Submitted:</span>
+                                        <span class="ml-1">24 Apr 2023</span>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-4 line-clamp-2">
+                                    Naturally grown rice without chemicals. Traditional farming methods used.
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600 flex-1">Approve</button>
+                                    <button class="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 flex-1">Reject</button>
+                                    <button class="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 w-12 flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Card 2 -->
+                        <div class="bg-white border rounded-lg overflow-hidden shadow-md">
+                            <div class="relative h-48 bg-gray-200">
+                                <img src="https://via.placeholder.com/400x300/e2f1e7/047857?text=Fresh+Turmeric" alt="Fresh Turmeric" class="w-full h-full object-cover">
+                                <span class="absolute top-2 right-2 bg-amber-400 text-emerald-900 text-xs font-bold px-2 py-1 rounded">PENDING</span>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Fresh Turmeric</h3>
+                                    <span class="text-emerald-600 font-bold">₹180/kg</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Farmer:</span>
+                                        <span class="ml-1">Meena Patel</span>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Location:</span>
+                                        <span class="ml-1">Ahmedabad, Gujarat</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">Submitted:</span>
+                                        <span class="ml-1">22 Apr 2023</span>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-4 line-clamp-2">
+                                    Organically grown turmeric with high curcumin content. Perfect for medicinal use.
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600 flex-1">Approve</button>
+                                    <button class="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 flex-1">Reject</button>
+                                    <button class="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 w-12 flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Product Card 3 -->
+                        <div class="bg-white border rounded-lg overflow-hidden shadow-md">
+                            <div class="relative h-48 bg-gray-200">
+                                <img src="https://via.placeholder.com/400x300/e2f1e7/047857?text=Natural+Honey" alt="Natural Honey" class="w-full h-full object-cover">
+                                <span class="absolute top-2 right-2 bg-amber-400 text-emerald-900 text-xs font-bold px-2 py-1 rounded">PENDING</span>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-800">Natural Honey</h3>
+                                    <span class="text-emerald-600 font-bold">₹450/kg</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-3">
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Farmer:</span>
+                                        <span class="ml-1">Suresh Reddy</span>
+                                    </div>
+                                    <div class="flex items-center mb-1">
+                                        <span class="font-medium">Location:</span>
+                                        <span class="ml-1">Hyderabad, Telangana</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">Submitted:</span>
+                                        <span class="ml-1">20 Apr 2023</span>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-4 line-clamp-2">
+                                    Wild forest honey collected using sustainable methods. Raw and unprocessed.
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 bg-emerald-500 text-white text-sm font-medium rounded hover:bg-emerald-600 flex-1">Approve</button>
+                                    <button class="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 flex-1">Reject</button>
+                                    <button class="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 w-12 flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            Showing 1 to 3 of 18 results
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50" disabled>Previous</button>
+                            <button class="px-3 py-1 bg-emerald-600 text-white rounded-md text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Product Detail Modal (Hidden by Default) -->
+            <div id="product-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-auto">
+                    <div class="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white">
+                        <h3 class="text-xl font-bold text-gray-800">Product Details</h3>
+                        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <!-- Modal content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample JavaScript to handle the modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewButtons = document.querySelectorAll('button.bg-blue-500');
+            const modal = document.getElementById('product-detail-modal');
+            const closeModal = document.getElementById('close-modal');
+            
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modal.classList.remove('hidden');
+                });
+            });
+            
+            closeModal.addEventListener('click', function() {
+                modal.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html> 

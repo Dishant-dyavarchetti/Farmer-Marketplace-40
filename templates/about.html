@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Natural Farming Marketplace</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-amber-50 font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
+                </div>
+                
+                <div class="hidden md:flex space-x-6">
+                    <a href="/about" class="text-lg hover:text-amber-200 font-medium">About Us</a>
+                    <a href="#how-it-works" class="text-lg hover:text-amber-200 font-medium">How It Works</a>
+                    <a href="/farmer-portal/farmers-dashboard/" class="text-lg hover:text-amber-200 font-medium">Farmers Dashboard</a>
+                    <a href="#products" class="text-lg hover:text-amber-200 font-medium">Products</a>
+                    <a href="/admin-portal/login/" class="text-lg hover:text-amber-200 font-medium">Verifier Page</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="/login" class="px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-500 transition font-semibold text-lg shadow-md">Login</a>
+                    <a href="/register" class="px-5 py-2.5 rounded-md bg-amber-400 text-emerald-900 hover:bg-amber-300 transition font-semibold text-lg shadow-md">Sign Up</a>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button class="mobile-menu-button">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile menu -->
+            <div class="mobile-menu hidden md:hidden mt-4 pb-4">
+                <a href="/about" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">About Us</a>
+                <a href="#how-it-works" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">How It Works</a>
+                <a href="#farmers" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Our Farmers</a>
+                <a href="#products" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Products</a>
+                <a href="#verifier" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Verifier Page</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white py-20">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center text-shadow">About NaturalFarm Market</h1>
+            <p class="text-xl max-w-3xl mx-auto text-center">We're on a mission to transform farming and food consumption by bringing authentic natural products directly to conscious consumers.</p>
+        </div>
+    </header>
+
+    <!-- Our Story Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-emerald-800 mb-12">Our Story</h2>
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-12 flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                        <img src="{% static 'images/our-story.jpg' %}" alt="Our Story" class="rounded-lg shadow-xl" onerror="this.src='https://placehold.co/600x400/115E59/FFFFFF?text=Our+Story'">
+                    </div>
+                    <div class="md:w-1/2">
+                        <p class="text-lg text-gray-700 leading-relaxed mb-6">NaturalFarm Market was born from a simple observation: natural farmers struggle to find markets that value their practices, while conscious consumers struggle to find authentic natural products they can trust.</p>
+                        <p class="text-lg text-gray-700 leading-relaxed">Our founders, a group of agricultural experts and technology enthusiasts, came together in 2022 with the vision of creating a transparent marketplace that would bridge this gap and support sustainable farming practices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Mission Section -->
+    <section class="py-16 bg-amber-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-emerald-800 mb-12">Our Mission</h2>
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <p class="text-xl text-gray-700 leading-relaxed">To create a transparent and trustworthy ecosystem that empowers natural farmers and provides consumers with authentic, traceable, and sustainable products.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-amber-100">
+                    <div class="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4 text-center">Connect</h3>
+                    <p class="text-gray-700 text-center">Connecting natural farmers with consumers who value sustainable practices and authentic products.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-amber-100">
+                    <div class="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4 text-center">Verify</h3>
+                    <p class="text-gray-700 text-center">Ensuring transparency and trust through our unique verification system and QR code traceability.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-amber-100">
+                    <div class="bg-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4 text-center">Empower</h3>
+                    <p class="text-gray-700 text-center">Empowering farmers with fair pricing and direct market access, while giving consumers confidence in their choices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Team Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-emerald-800 mb-12">Meet Our Team</h2>
+            <div class="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                <!-- Team Member 1 -->
+                <div class="text-center">
+                    <div class="mb-4 mx-auto w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-emerald-100">
+                        <img src="{% static 'images/team/member1.jpg' %}" alt="Team Member" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200/115E59/FFFFFF?text=Member'">
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-800">Dishant Dyavarchetti</h3>
+                    <p class="text-gray-600">Project Manager, Developer</p>
+                </div>
+                <!-- Team Member 2 -->
+                <div class="text-center">
+                    <div class="mb-4 mx-auto w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-emerald-100">
+                        <img src="{% static 'images/team/member2.jpg' %}" alt="Team Member" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200/115E59/FFFFFF?text=Member'">
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-800">Bhavya Jani</h3>
+                    <p class="text-gray-600">Backend Developer</p>
+                </div>
+                <!-- Team Member 3 -->
+                <div class="text-center">
+                    <div class="mb-4 mx-auto w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-emerald-100">
+                        <img src="{% static 'images/team/member3.jpg' %}" alt="Team Member" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200/115E59/FFFFFF?text=Member'">
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-800">Nikhil Bhatia</h3>
+                    <p class="text-gray-600">Frontend Developer,UI/UX Designer</p>
+                </div>
+                <!-- Team Member 4 -->
+                <div class="text-center">
+                    <div class="mb-4 mx-auto w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-emerald-100">
+                        <img src="{% static 'images/team/member4.jpg' %}" alt="Team Member" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200/115E59/FFFFFF?text=Member'">
+                    </div>
+                    <h3 class="text-xl font-bold text-emerald-800">Rohan Sheth</h3>
+                    <p class="text-gray-600">Frontend Developer</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values Section -->
+    <section class="py-16 bg-amber-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-emerald-800 mb-12">Our Values</h2>
+            <div class="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-md border-2 border-amber-100">
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4">Transparency</h3>
+                    <p class="text-gray-700">We believe in complete transparency in the food supply chain. Our QR code traceability system ensures that consumers know exactly where their food comes from and how it was produced.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md border-2 border-amber-100">
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4">Sustainability</h3>
+                    <p class="text-gray-700">We are committed to promoting sustainable farming practices that protect the environment, conserve resources, and promote biodiversity for future generations.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md border-2 border-amber-100">
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4">Community</h3>
+                    <p class="text-gray-700">We foster a community of farmers, consumers, and verifiers who share a common goal of creating a better food system that benefits everyone involved.</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md border-2 border-amber-100">
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4">Fairness</h3>
+                    <p class="text-gray-700">We ensure fair pricing for farmers and reasonable prices for consumers by eliminating unnecessary intermediaries and creating a direct marketplace.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-emerald-800 to-emerald-600 text-white">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-2/3 mb-10 md:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-shadow">Join Our Growing Community</h2>
+                    <p class="text-xl md:text-2xl text-white leading-relaxed">Become part of our mission to transform farming and food consumption for a more sustainable future.</p>
+                </div>
+                <div class="md:w-1/3 flex flex-col space-y-6">
+                    <a href="/register" class="px-8 py-5 bg-amber-400 text-emerald-900 font-bold rounded-lg hover:bg-amber-300 transition text-center shadow-lg text-xl">Join as Farmer</a>
+                    <a href="/browse-products" class="px-8 py-5 bg-white text-emerald-800 font-bold rounded-lg hover:bg-amber-50 transition text-center shadow-lg text-xl">Browse as Consumer</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-emerald-900 text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-10">
+                <div>
+                    <h3 class="text-2xl font-bold mb-8">NaturalFarm Market</h3>
+                    <p class="text-white text-lg leading-relaxed">Connecting verified natural farmers with conscious consumers for a sustainable future.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-8">Quick Links</h3>
+                    <ul class="space-y-4">
+                        <li><a href="/" class="text-white hover:text-amber-200 text-lg">Home</a></li>
+                        <li><a href="/about" class="text-white hover:text-amber-200 text-lg">About Us</a></li>
+                        <li><a href="#how-it-works" class="text-white hover:text-amber-200 text-lg">How It Works</a></li>
+                        <li><a href="/login" class="text-white hover:text-amber-200 text-lg">Login</a></li>
+                        <li><a href="/register" class="text-white hover:text-amber-200 text-lg">Sign Up</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-8">For Farmers</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Verification Process</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Product Listing</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Certification</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Farmer FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-8">For Consumers</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Browse Products</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">QR Verification</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Delivery Info</a></li>
+                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Consumer FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-emerald-700 mt-16 pt-10 text-center">
+                <p class="text-lg">&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple JavaScript for mobile menu toggle -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html> 
