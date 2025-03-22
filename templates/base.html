@@ -1,0 +1,48 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Django Tailwind Site{% endblock %}</title>
+    <!-- Return to using the tailwind_css tag which handles paths correctly -->
+    {% tailwind_css %}
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-600 text-white shadow">
+        <div class="container mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold">My Django Tailwind Project</h1>
+            <nav class="mt-2">
+                <ul class="flex space-x-4">
+                    <li><a href="/" class="hover:underline">Home</a></li>
+                    <li><a href="/about" class="hover:underline">About</a></li>
+                    <li><a href="/contact" class="hover:underline">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Welcome to your new Django site with Tailwind CSS!</h2>
+            <p class="mb-4">This is a starter template. Replace this with your content.</p>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Get Started
+            </button>
+        </div>
+        {% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <p class="text-center">&copy; {% now "Y" %} My Django Tailwind Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

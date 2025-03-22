@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | My Django Tailwind Site{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden fade-in">
+    <div class="p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to My Django Tailwind Project</h2>
+        <p class="text-gray-600 mb-6">This is a sample page demonstrating Tailwind CSS integration with Django. Tailwind makes it easy to build beautiful, responsive designs without leaving your HTML.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-100 p-4 rounded-lg">
+                <h3 class="font-semibold text-blue-800 mb-2">Responsive Design</h3>
+                <p class="text-blue-700">Fully responsive layouts that work on any device size.</p>
+            </div>
+            <div class="bg-green-100 p-4 rounded-lg">
+                <h3 class="font-semibold text-green-800 mb-2">Utility First</h3>
+                <p class="text-green-700">Build custom designs without writing custom CSS.</p>
+            </div>
+            <div class="bg-purple-100 p-4 rounded-lg">
+                <h3 class="font-semibold text-purple-800 mb-2">Component-Friendly</h3>
+                <p class="text-purple-700">Extract reusable components to reduce duplication.</p>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Get Started
+            </button>
+            <button class="custom-button">
+                Learn More
+            </button>
+        </div>
+        
+        <p class="mt-6 text-custom">This text uses a custom color defined in our custom CSS file.</p>
+    </div>
+</div>
+{% endblock %} 
