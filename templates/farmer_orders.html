@@ -29,7 +29,7 @@
                 
                 <div class="flex items-center space-x-4">
                     <span class="text-lg">Welcome, {{ request.user.username }}</span>
-                    <a href="/logout/" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
+                    <a href="{% url 'logout' %}" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
                 </div>
             </div>
         </div>
@@ -42,25 +42,25 @@
                 <h2 class="text-xl font-bold">Farmer Controls</h2>
             </div>
             <nav class="mt-4">
-                <a href="/farmer-portal/dashboard" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_dashboard' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                     </svg>
                     Dashboard Overview
                 </a>
-                <a href="/farmer-portal/verification-status" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_verification_status' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
                     Verification Status
                 </a>
-                <a href="/farmer-portal/product-management" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_product_management' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
                     Product Management
                 </a>
-                <a href="/farmer-portal/orders" class="farmer-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_orders' %}" class="farmer-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
@@ -182,7 +182,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button class="text-blue-600 hover:text-blue-900 view-order" data-id="ORD-2023-0042">View</button>
-                                    <button class="ml-3 text-emerald-600 hover:text-emerald-900">Process</button>
+                                    <button class="ml-3 text-emerald-600 hover:text-emerald-900 process-order" data-id="ORD-2023-0042" data-status="processing">Process</button>
                                 </td>
                             </tr>
                             
@@ -205,7 +205,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button class="text-blue-600 hover:text-blue-900 view-order" data-id="ORD-2023-0041">View</button>
-                                    <button class="ml-3 text-emerald-600 hover:text-emerald-900">Ship</button>
+                                    <button class="ml-3 text-emerald-600 hover:text-emerald-900 process-order" data-id="ORD-2023-0041" data-status="shipped">Ship</button>
                                 </td>
                             </tr>
                             
@@ -413,7 +413,7 @@
                                 <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
                                     Contact Customer
                                 </button>
-                                <button class="px-4 py-2 bg-emerald-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-emerald-700">
+                                <button id="processOrderBtn" class="px-4 py-2 bg-emerald-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-emerald-700 process-order" data-id="ORD-2023-0042" data-status="processing">
                                     Process Order
                                 </button>
                             </div>
@@ -429,6 +429,9 @@
                     const orderDetailModal = document.getElementById('orderDetailModal');
                     const closeOrderModal = document.getElementById('closeOrderModal');
                     const modalOrderId = document.getElementById('modalOrderId');
+                    
+                    // Process order buttons
+                    const processOrderBtns = document.querySelectorAll('.process-order');
                     
                     // Open order detail modal
                     if (viewOrderBtns) {
@@ -449,6 +452,45 @@
                         closeOrderModal.addEventListener('click', () => {
                             orderDetailModal.classList.remove('flex');
                             orderDetailModal.classList.add('hidden');
+                        });
+                    }
+                    
+                    // Process order functionality
+                    if (processOrderBtns) {
+                        processOrderBtns.forEach(btn => {
+                            btn.addEventListener('click', async () => {
+                                const orderId = btn.getAttribute('data-id');
+                                const newStatus = btn.getAttribute('data-status');
+                                
+                                try {
+                                    // Create form data
+                                    const formData = new FormData();
+                                    formData.append('order_id', orderId);
+                                    formData.append('status', newStatus);
+                                    
+                                    // Send AJAX request
+                                    const response = await fetch('{% url "update_order_status" %}', {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            'X-CSRFToken': '{{ csrf_token }}'
+                                        }
+                                    });
+                                    
+                                    const data = await response.json();
+                                    
+                                    if (data.success) {
+                                        // Update UI to reflect status change
+                                        alert(data.message);
+                                        location.reload(); // Simple reload for now, could update UI more elegantly
+                                    } else {
+                                        alert('Error: ' + data.message);
+                                    }
+                                } catch (error) {
+                                    console.error('Error updating order status:', error);
+                                    alert('An error occurred while updating the order status.');
+                                }
+                            });
                         });
                     }
                 });

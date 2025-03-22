@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django_tailwind import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +29,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('register/', views.register, name='register'),
     path('about/', views.about, name='about'),
+    path('logout/', views.user_logout, name='logout'),
     
     # Admin portal authentication
     path('admin-portal/login/', views.admin_login, name='admin_login'),
@@ -40,6 +43,10 @@ urlpatterns = [
     path('admin-portal/manage-users/', views.manage_users, name='manage_users'),
     path('admin-portal/orders/', views.order_management, name='order_management'),
     
+    # Admin action handlers
+    path('admin-portal/review-verification/<int:verification_id>/', views.review_verification, name='review_verification'),
+    path('admin-portal/review-product/<int:product_id>/', views.review_product, name='review_product'),
+    
     # Farmer portal pages
     path('farmer-portal/dashboard/', views.farmer_dashboard, name='farmer_dashboard'),
     path('farmer-portal/verification-status/', views.farmer_verification_status, name='farmer_verification_status'),
@@ -49,4 +56,13 @@ urlpatterns = [
     # Farmer form submission handlers
     path('farmer-portal/submit-verification/', views.submit_verification, name='submit_verification'),
     path('farmer-portal/save-product/', views.save_product, name='save_product'),
+    
+    # API endpoints for AJAX actions
+    path('api/update-order-status/', views.update_order_status, name='update_order_status'),
+    path('api/delete-product/', views.delete_product, name='delete_product'),
+    path('marketplace/', views.marketplace, name='marketplace'),
 ]
+
+# Add media URL configuration for development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

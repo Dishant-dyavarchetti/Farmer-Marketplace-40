@@ -29,7 +29,7 @@
                 
                 <div class="flex items-center space-x-4">
                     <span class="text-lg">Welcome, {{ request.user.username }}</span>
-                    <a href="/logout/" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
+                    <a href="{% url 'logout' %}" class="px-5 py-2.5 rounded-md bg-red-500 hover:bg-red-600 transition font-semibold text-lg shadow-md">Logout</a>
                 </div>
             </div>
         </div>
@@ -42,25 +42,25 @@
                 <h2 class="text-xl font-bold">Farmer Controls</h2>
             </div>
             <nav class="mt-4">
-                <a href="/farmer-portal/dashboard" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_dashboard' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                     </svg>
                     Dashboard Overview
                 </a>
-                <a href="/farmer-portal/verification-status" class="farmer-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_verification_status' %}" class="farmer-nav-item active flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
                     Verification Status
                 </a>
-                <a href="/farmer-portal/product-management" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_product_management' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
                     Product Management
                 </a>
-                <a href="/farmer-portal/orders" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
+                <a href="{% url 'farmer_orders' %}" class="farmer-nav-item flex items-center px-4 py-3 hover:bg-emerald-600 transition">
                     <svg class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
@@ -131,7 +131,7 @@
                     </div>
                     
                     <div class="mt-4 flex justify-end">
-                        <a href="/farmer-portal/dashboard" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                        <a href="{% url 'farmer_dashboard' %}#verification-form" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
                             Submit New Verification
                         </a>
                     </div>
@@ -177,9 +177,17 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-50">Submitted Documents</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <a href="#" class="text-emerald-600 hover:text-emerald-900">View Certificate</a>
+                                        {% if verification.certificate_document %}
+                                        <a href="{{ verification.certificate_document.url }}" target="_blank" class="text-emerald-600 hover:text-emerald-900">View Certificate</a>
+                                        {% else %}
+                                        <span class="text-gray-400">No certificate available</span>
+                                        {% endif %}
+                                        
                                         {% if supporting_documents %}
-                                        | <a href="#" class="text-emerald-600 hover:text-emerald-900">View Supporting Documents</a>
+                                        | 
+                                        {% for doc in supporting_documents %}
+                                        <a href="{{ doc.document.url }}" target="_blank" class="text-emerald-600 hover:text-emerald-900">{{ doc.document_type }}</a>{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
                                         {% endif %}
                                     </td>
                                 </tr>
