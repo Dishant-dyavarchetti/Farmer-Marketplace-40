@@ -55,7 +55,7 @@
             }
 
             try {
-                const response = await fetch(`/api/product/${productId}/`);
+                const response = await fetch(`/qr/api/product/${productId}/`);
                 const data = await response.json();
 
                 document.getElementById("productInfo").innerHTML = `

@@ -21,7 +21,7 @@ async function fetchProductDetails() {
     }
 
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/product/${productId}/`);
+        const response = await fetch(`/qr/api/product/${productId}/`);
         const data = await response.json();
 
         document.getElementById("productInfo").innerHTML = `

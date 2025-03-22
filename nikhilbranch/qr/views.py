@@ -21,4 +21,4 @@ def qr(request):
     return render(request, "index.html")
 
 def product_page(request, product_id):
-    return render(request, "product.html", {"product_id": product_id})
+    return render(request, "product.html", {"product_id": product_id})  
