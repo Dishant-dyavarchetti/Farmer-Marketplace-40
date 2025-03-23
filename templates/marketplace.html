@@ -154,125 +154,65 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Featured Products</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Product 1 -->
+                {% for product in featured_products %}
                 <div class="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-105">
-                    <div class="h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-carrot text-4xl text-emerald-500"></i>
+                    <div class="relative h-48 bg-gray-200 flex items-center justify-center">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-48 w-full object-cover">
+                        {% else %}
+                        <i class="fas fa-box text-4xl text-emerald-500"></i>
+                        {% endif %}
+                        
+                        {% if product.status == 'active' %}
+                        <div class="absolute top-2 right-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                            Verified
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="p-4">
                         <div class="flex justify-between items-start">
-                            <h3 class="text-lg font-semibold text-gray-800">Organic Carrots</h3>
+                            <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
                             <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
-                                Vegetables
+                                {{ product.category.name }}
                             </span>
                         </div>
                         
-                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">Fresh organic carrots grown without pesticides or chemical fertilizers.</p>
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ product.description|truncatechars:100 }}</p>
                         
                         <div class="mt-4 flex justify-between items-center">
-                            <span class="text-lg font-bold text-emerald-600">₹40/KG</span>
-                            <span class="text-xs text-gray-500">Mountain View Farm</span>
+                            <span class="text-lg font-bold text-emerald-600">₹{{ product.price }}/{{ product.unit }}</span>
+                            <span class="text-xs text-gray-500">{{ product.farmer.farm_name }}</span>
                         </div>
                         
                         <div class="mt-4 flex space-x-2">
-                            <button class="flex-1 py-2 text-center text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition text-sm">
+                            <a href="{% url 'marketplace_product' product.id %}" class="flex-1 py-2 text-center text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition text-sm">
                                 View Details
-                            </button>
+                            </a>
                         </div>
+
+                        {% if product.status == 'active' and product.qr_code %}
+                        <div class="mt-4 flex justify-center">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500 mb-1">Scan for details</span>
+                                <div class="bg-white p-1 border border-gray-200 rounded-md">
+                                    <img src="{{ product.qr_code.url }}" alt="QR Code" class="h-16 w-16">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-                
-                <!-- Product 2 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-105">
-                    <div class="h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-apple-alt text-4xl text-emerald-500"></i>
-                    </div>
-                    
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <h3 class="text-lg font-semibold text-gray-800">Organic Apples</h3>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
-                                Fruits
-                            </span>
-                        </div>
-                        
-                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">Juicy and crisp apples grown in Himachal Pradesh orchards.</p>
-                        
-                        <div class="mt-4 flex justify-between items-center">
-                            <span class="text-lg font-bold text-emerald-600">₹120/KG</span>
-                            <span class="text-xs text-gray-500">Himachal Orchards</span>
-                        </div>
-                        
-                        <div class="mt-4 flex space-x-2">
-                            <button class="flex-1 py-2 text-center text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition text-sm">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
+                {% empty %}
+                <div class="col-span-4 py-10 text-center">
+                    <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-500">No featured products available at the moment.</p>
                 </div>
-                
-                <!-- Product 3 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-105">
-                    <div class="h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-seedling text-4xl text-emerald-500"></i>
-                    </div>
-                    
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <h3 class="text-lg font-semibold text-gray-800">Organic Rice</h3>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
-                                Grains
-                            </span>
-                        </div>
-                        
-                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">Premium quality basmati rice grown using traditional methods.</p>
-                        
-                        <div class="mt-4 flex justify-between items-center">
-                            <span class="text-lg font-bold text-emerald-600">₹85/KG</span>
-                            <span class="text-xs text-gray-500">Green Valley Farm</span>
-                        </div>
-                        
-                        <div class="mt-4 flex space-x-2">
-                            <button class="flex-1 py-2 text-center text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition text-sm">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Product 4 -->
-                <div class="bg-white rounded-lg shadow-md overflow-hidden transition transform hover:scale-105">
-                    <div class="h-48 bg-gray-200 flex items-center justify-center">
-                        <i class="fas fa-mortar-pestle text-4xl text-emerald-500"></i>
-                    </div>
-                    
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <h3 class="text-lg font-semibold text-gray-800">Organic Turmeric</h3>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
-                                Spices
-                            </span>
-                        </div>
-                        
-                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">High-quality turmeric with rich color and flavor, perfect for cooking.</p>
-                        
-                        <div class="mt-4 flex justify-between items-center">
-                            <span class="text-lg font-bold text-emerald-600">₹180/KG</span>
-                            <span class="text-xs text-gray-500">Spice Garden</span>
-                        </div>
-                        
-                        <div class="mt-4 flex space-x-2">
-                            <button class="flex-1 py-2 text-center text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition text-sm">
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
             
             <div class="text-center mt-8">
-                <a href="#" class="inline-block py-2 px-6 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                <a href="{% url 'marketplace' %}?status=active" class="inline-block py-2 px-6 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
                     View All Products
                 </a>
             </div>

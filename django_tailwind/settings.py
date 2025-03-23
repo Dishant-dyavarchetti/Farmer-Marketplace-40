@@ -177,3 +177,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
+
+# QR Code Configuration
+BASE_URL = "http://localhost:8000"  # Update this in production to your actual domain

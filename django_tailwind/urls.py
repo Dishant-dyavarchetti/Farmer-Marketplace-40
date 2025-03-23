@@ -51,6 +51,7 @@ urlpatterns = [
     path('farmer-portal/dashboard/', views.farmer_dashboard, name='farmer_dashboard'),
     path('farmer-portal/verification-status/', views.farmer_verification_status, name='farmer_verification_status'),
     path('farmer-portal/product-management/', views.farmer_product_management, name='farmer_product_management'),
+    path('farmer-portal/my-products/', views.my_products, name='my_products'),
     path('farmer-portal/add-product/', views.add_product, name='add_product'),
     path('farmer-portal/orders/', views.farmer_orders, name='farmer_orders'),
     
@@ -62,11 +63,14 @@ urlpatterns = [
     path('api/update-order-status/', views.update_order_status, name='update_order_status'),
     path('api/delete-product/', views.delete_product, name='delete_product'),
     path('marketplace/', views.marketplace, name='marketplace'),
+    path('marketplace/product/<int:product_id>/', views.marketplace_product, name='marketplace_product'),
     
     # Admin User Creation
     path('setup/init-admin/', views.init_admin, name='init_admin'),
     path('admin-portal/create-admin-user/', views.create_admin_user, name='create_admin_user'),
     path('add_product/', views.add_product, name='add_product'),
+
+    path('qr/', include('qr.urls')),
 ]
 
 # Add media URL configuration for development

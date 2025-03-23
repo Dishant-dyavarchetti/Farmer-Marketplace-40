@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - NaturalFarm Market</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-emerald-800 text-white p-4">
+            <div class="container mx-auto">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">NaturalFarm Market</h1>
+                    <a href="/" class="bg-emerald-700 hover:bg-emerald-600 px-4 py-2 rounded-lg">
+                        Visit Store
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Product Information Card -->
+        <main class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+                <div id="loading" class="p-8 text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Loading product information...</p>
+                </div>
+                
+                <div id="productDetails" class="hidden">
+                    <!-- Product Image -->
+                    <div id="productImage" class="h-64 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-4xl"></i>
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="p-6">
+                        <div class="flex items-center mb-2">
+                            <span id="productCategory" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full"></span>
+                            <div class="ml-2 flex-1 text-right">
+                                <span id="productPrice" class="text-xl font-bold text-emerald-700"></span>
+                            </div>
+                        </div>
+                        
+                        <h1 id="productName" class="text-2xl font-bold text-gray-800 mb-2"></h1>
+                        
+                        <div class="flex items-center mb-4">
+                            <div class="bg-emerald-100 rounded-full p-1 mr-2">
+                                <i class="fas fa-user text-emerald-700"></i>
+                            </div>
+                            <p>Farmer: <span id="farmerName" class="font-medium"></span></p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Product Description</h2>
+                            <p id="productDescription" class="text-gray-600"></p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Organic Certification</h2>
+                            <div id="organicStatus" class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <p>This product is organically grown and verified by NaturalFarm Market.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4 mt-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Farm Origin</h2>
+                            <p class="text-gray-600">This product is sourced from <span id="farmLocation" class="font-medium">a verified local farm</span> that follows sustainable farming practices.</p>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4 mt-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Product Details</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Unit:</p>
+                                    <p id="productUnit" class="font-medium"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Package Size:</p>
+                                    <p id="packageSize" class="font-medium"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- QR Code Section -->
+                        <div id="qrCodeSection" class="border-t border-gray-200 pt-4 mt-4">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Scan & Share</h2>
+                            <div class="flex items-center justify-center">
+                                <div class="text-center">
+                                    <div id="qrCodeImage" class="mb-2 p-2 border border-gray-200 rounded inline-block">
+                                        <!-- QR Code image will be inserted here -->
+                                    </div>
+                                    <p class="text-sm text-gray-600">Scan this QR code to view product information anytime</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="errorMessage" class="hidden p-8 text-center">
+                    <div class="text-red-500 mb-4">
+                        <i class="fas fa-exclamation-circle text-5xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Product Not Found</h3>
+                    <p class="text-gray-600 mb-4">
+                        We couldn't find the product you're looking for. It might have been removed or the QR code is invalid.
+                    </p>
+                    <a href="/" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 inline-block">
+                        Go to Homepage
+                    </a>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-emerald-900 text-white py-6 mt-8">
+            <div class="container mx-auto px-4">
+                <div class="text-center">
+                    <p>&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+                    <p class="mt-2 text-emerald-200">Supporting sustainable farming and organic products.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productId = "{{ product_id }}";
+            const loadingElement = document.getElementById('loading');
+            const productDetailsElement = document.getElementById('productDetails');
+            const errorMessageElement = document.getElementById('errorMessage');
+            
+            // Fetch product details
+            fetch(`/qr/api/product/${productId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Product not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading and show product details
+                    loadingElement.classList.add('hidden');
+                    productDetailsElement.classList.remove('hidden');
+                    
+                    // Populate product details
+                    document.getElementById('productName').textContent = data.name;
+                    document.getElementById('productPrice').textContent = `₹${data.price} per ${data.unit}`;
+                    document.getElementById('productCategory').textContent = data.category;
+                    document.getElementById('farmerName').textContent = data.farmer_name;
+                    document.getElementById('productDescription').textContent = data.description;
+                    document.getElementById('farmLocation').textContent = data.farm_location;
+                    document.getElementById('productUnit').textContent = data.unit;
+                    document.getElementById('packageSize').textContent = data.package_size;
+                    
+                    // Update organic status
+                    if (!data.is_organic) {
+                        document.getElementById('organicStatus').innerHTML = `
+                            <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
+                            <p>This product is grown using traditional farming methods but is not certified organic.</p>
+                        `;
+                    }
+                    
+                    // Set product image if available
+                    if (data.image_url) {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = data.image_url;
+                        imgElement.alt = data.name;
+                        imgElement.className = 'w-full h-full object-cover';
+                        document.getElementById('productImage').innerHTML = '';
+                        document.getElementById('productImage').appendChild(imgElement);
+                    }
+                    
+                    // Set QR code if available
+                    if (data.qr_code_url) {
+                        const qrElement = document.createElement('img');
+                        qrElement.src = data.qr_code_url;
+                        qrElement.alt = 'QR Code';
+                        qrElement.className = 'w-32 h-32';
+                        document.getElementById('qrCodeImage').innerHTML = '';
+                        document.getElementById('qrCodeImage').appendChild(qrElement);
+                    } else {
+                        // If no QR code, hide the QR code section
+                        document.getElementById('qrCodeSection').classList.add('hidden');
+                    }
+                })
+                .catch(error => {
+                    // Hide loading and show error message
+                    loadingElement.classList.add('hidden');
+                    errorMessageElement.classList.remove('hidden');
+                    console.error('Error fetching product details:', error);
+                });
+        });
+    </script>
+</body>
+</html> 

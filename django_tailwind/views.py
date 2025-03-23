@@ -15,6 +15,7 @@ from accounts.models import (
 import os
 from datetime import timedelta
 import json
+from qr.utils import generate_qr_code
 
 def home(request):
     return render(request, 'homepage.html')
@@ -399,31 +400,41 @@ def review_verification(request, verification_id):
     }
     return render(request, 'admin/review_verification.html', context)
 
-@login_required
 @user_passes_test(is_admin_or_verifier)
 def review_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        action = request.POST.get('action')
-        notes = request.POST.get('notes', '')
+        from qr.utils import generate_qr_code
         
-        if action == 'approve':
-            product.status = 'approved'
-            message = "Product approved successfully."
-        elif action == 'reject':
+        # Check for both formats - direct keys or action field
+        if 'approve' in request.POST or request.POST.get('action') == 'approve':
+            product.status = 'active'
+            
+            # Generate QR code for approved product
+            try:
+                qr_file = generate_qr_code(product)
+                product.qr_code = qr_file
+                messages.success(request, f"Product '{product.name}' has been approved and QR code generated successfully!")
+            except Exception as e:
+                messages.error(request, f"Product approved but QR code generation failed: {str(e)}")
+                
+            product.save()
+            
+        elif 'reject' in request.POST or request.POST.get('action') == 'reject':
             product.status = 'rejected'
-            # Store rejection reason in description (could add a dedicated field)
-            product.description += f"\n\nRejection reason: {notes}"
-            message = "Product rejected successfully."
-        
-        product.save()
-        messages.success(request, message)
+            # Check for both field names
+            rejection_reason = request.POST.get('rejection_reason') or request.POST.get('notes')
+            if rejection_reason:
+                product.description += f"\n\nRejection Notes: {rejection_reason}"
+            product.save()
+            messages.success(request, f"Product '{product.name}' has been rejected.")
+            
         return redirect('product_approval')
     
     context = {
         'product': product,
-        'farmer': product.farmer,
+        'farmer': product.farmer
     }
     return render(request, 'admin/review_product.html', context)
 
@@ -446,7 +457,7 @@ def product_approval(request):
         # Get count statistics for the filter badges
         all_products_count = Product.objects.count()
         pending_count = Product.objects.filter(status='pending').count()
-        approved_count = Product.objects.filter(status='approved').count()
+        approved_count = Product.objects.filter(status='active').count()
         rejected_count = Product.objects.filter(status='rejected').count()
         
     except Exception as e:
@@ -855,6 +866,13 @@ def farmer_dashboard(request):
         # Get recent products
         recent_products = Product.objects.filter(farmer=farmer).order_by('-created_at')[:5]
         
+        # Debug prints
+        print(f"Total products: {total_products}")
+        print(f"Active products: {active_products}")
+        print(f"Recent products: {recent_products.count()}")
+        for product in recent_products:
+            print(f"Product: {product.name}, Status: {product.status}")
+        
         # Get recent orders for farmer's products
         # Using .distinct() to get unique orders even if multiple items in an order are from this farmer
         recent_orders = Order.objects.filter(
@@ -876,6 +894,7 @@ def farmer_dashboard(request):
             'farmer': farmer,
             'verification_status': verification_status,
             'total_products': total_products,
+            'products_count': total_products,
             'pending_products': pending_products,
             'active_products': active_products,
             'recent_products': recent_products,
@@ -982,6 +1001,71 @@ def farmer_product_management(request):
         }
         
         return render(request, 'farmer_product_management.html', context)
+        
+    except Farmer.DoesNotExist:
+        # If the farmer profile doesn't exist, create one and redirect
+        farmer = Farmer.objects.create(
+            user=request.user,
+            is_verified=False
+        )
+        return redirect('farmer_dashboard')
+
+@login_required(login_url='/login/')
+def my_products(request):
+    """
+    Display all products for a farmer with filtering options
+    """
+    try:
+        # Get the farmer profile
+        farmer = Farmer.objects.get(user=request.user)
+        
+        # Get filter parameters
+        status_filter = request.GET.get('status', 'all')
+        category_filter = request.GET.get('category', 'all')
+        search_query = request.GET.get('search', '')
+        
+        # Base query - all products for this farmer
+        products = Product.objects.filter(farmer=farmer)
+        
+        # Apply filters
+        if status_filter != 'all':
+            products = products.filter(status=status_filter)
+            
+        if category_filter != 'all':
+            products = products.filter(category__id=category_filter)
+            
+        if search_query:
+            products = products.filter(name__icontains=search_query)
+        
+        # Order by most recent
+        products = products.order_by('-created_at')
+        
+        # Get all categories for filter dropdown
+        categories = Category.objects.all()
+        
+        # Calculate product statistics
+        total_products = Product.objects.filter(farmer=farmer).count()
+        active_products = Product.objects.filter(farmer=farmer, status='active').count()
+        pending_products = Product.objects.filter(farmer=farmer, status='pending').count()
+        draft_products = Product.objects.filter(farmer=farmer, status='draft').count()
+        rejected_products = Product.objects.filter(farmer=farmer, status='rejected').count()
+        
+        context = {
+            'farmer': farmer,
+            'products': products,
+            'categories': categories,
+            'status_filter': status_filter,
+            'category_filter': category_filter,
+            'search_query': search_query,
+            'total_products': total_products,
+            'active_products': active_products,
+            'pending_products': pending_products,
+            'draft_products': draft_products,
+            'rejected_products': rejected_products,
+            'is_verified': farmer.is_verified
+        }
+        
+        return render(request, 'my_products.html', context)
         
     except Farmer.DoesNotExist:
         # If the farmer profile doesn't exist, create one and redirect
@@ -1198,31 +1282,61 @@ def save_product(request):
 @login_required(login_url='/login/')
 def delete_product(request):
     """
-    Handle product deletion via AJAX
+    Handle product deletion via form submission or AJAX
     """
     if request.method == 'POST':
         try:
             product_id = request.POST.get('product_id')
             farmer = Farmer.objects.get(user=request.user)
-            product = get_object_or_404(Product, id=product_id, farmer=farmer)
+            product = Product.objects.get(id=product_id, farmer=farmer)
             
             product_name = product.name
             product.delete()
             
-            return JsonResponse({
-                'success': True,
-                'message': f"Product '{product_name}' has been deleted successfully."
-            })
+            # For AJAX requests
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': f"Product '{product_name}' has been deleted successfully."
+                })
+            
+            # For regular form submissions
+            messages.success(request, f"Product '{product_name}' has been deleted successfully.")
+            return redirect('my_products')  # Redirect to the my_products page
+            
+        except Product.DoesNotExist:
+            error_message = "Product not found or you don't have permission to delete it."
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': error_message
+                })
+            
+            messages.error(request, error_message)
+            return redirect('my_products')
+            
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': f"Error deleting product: {str(e)}"
-            })
+            error_message = f"Error deleting product: {str(e)}"
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': error_message
+                })
+            
+            messages.error(request, error_message)
+            return redirect('my_products')
     
-    return JsonResponse({
-        'success': False,
-        'message': "Invalid request method."
-    })
+    # Invalid request method
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'message': "Invalid request method."
+        })
+    
+    messages.error(request, "Invalid request method.")
+    return redirect('my_products')
 
 @login_required(login_url='/login/')
 def update_order_status(request):
@@ -1292,7 +1406,7 @@ def marketplace(request):
     """
     # Get featured products
     try:
-        featured_products = Product.objects.filter(status='approved').order_by('-created_at')[:8]
+        featured_products = Product.objects.filter(status='active').order_by('-created_at')[:8]
         # Get all categories
         categories = Category.objects.all()[:8]
         
@@ -1305,6 +1419,26 @@ def marketplace(request):
         context = {}
         
     return render(request, 'marketplace.html', context)
+
+def marketplace_product(request, product_id):
+    """
+    View for displaying a single product in the marketplace
+    """
+    try:
+        product = get_object_or_404(Product, id=product_id, status='active')
+        related_products = Product.objects.filter(
+            category=product.category, 
+            status='active'
+        ).exclude(id=product.id).order_by('-created_at')[:4]
+        
+        context = {
+            'product': product,
+            'related_products': related_products,
+        }
+    except:
+        context = {'error': 'Product not found'}
+        
+    return render(request, 'marketplace_product.html', context)
 
 def init_admin(request):
     """

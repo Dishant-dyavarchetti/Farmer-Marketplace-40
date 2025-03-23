@@ -13,8 +13,8 @@
                     <a href="/" class="text-2xl font-bold tracking-tight">NaturalFarm Market</a>
                     <div class="hidden md:flex items-center space-x-1">
                         <a href="{% url 'farmer_dashboard' %}" class="px-3 py-2 rounded-md text-white bg-emerald-700">Dashboard</a>
-                        <a href="#" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">My Products</a>
-                        <a href="#" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">Orders</a>
+                        <a href="{% url 'my_products' %}" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">My Products</a>
+                        <a href="{% url 'farmer_orders' %}" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">Orders</a>
                         <a href="#" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">Analytics</a>
                     </div>
                 </div>
@@ -158,12 +158,12 @@
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h2 class="text-xl font-semibold text-gray-800">Recent Products</h2>
-                        <a href="#" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">View All</a>
+                        <a href="{% url 'farmer_product_management' %}" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">View All</a>
                     </div>
                 </div>
                 <ul class="divide-y divide-gray-200">
-                    {% if products %}
-                        {% for product in products %}
+                    {% if recent_products %}
+                        {% for product in recent_products %}
                         <li class="p-4 hover:bg-gray-50">
                             <div class="flex items-center space-x-4">
                                 <div class="flex-shrink-0 h-12 w-12 rounded-md bg-gray-200 overflow-hidden">
@@ -198,7 +198,7 @@
                     {% else %}
                         <li class="p-6 text-center text-gray-500">
                             <p>You haven't added any products yet.</p>
-                            <a href="#" class="inline-block mt-2 text-emerald-600 hover:text-emerald-800">+ Add your first product</a>
+                            <a href="{% url 'add_product' %}" class="inline-block mt-2 text-emerald-600 hover:text-emerald-800">+ Add your first product</a>
                         </li>
                     {% endif %}
                 </ul>

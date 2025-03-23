@@ -97,6 +97,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    qr_code = models.ImageField(upload_to='product_qr_codes/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
