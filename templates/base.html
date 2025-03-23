@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NaturalFarm Market{% endblock %}</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-amber-50 min-h-screen flex flex-col">
+    {% block body %}
+        {% block header %}
+        <!-- Default Header - can be overridden by templates -->
+        <nav class="bg-emerald-800 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="/" class="text-white hover:text-amber-200 font-medium">Home</a>
+                        <a href="/about/" class="text-white hover:text-amber-200 font-medium">About Us</a>
+                        <a href="/marketplace/" class="text-white hover:text-amber-200 font-medium">Marketplace</a>
+                        <a href="/farmer-portal/dashboard/" class="text-white hover:text-amber-200 font-medium">Farmer Dashboard</a>
+                        <a href="/admin-portal/login/" class="text-white hover:text-amber-200 font-medium">Verifier Portal</a>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        {% if user.is_authenticated %}
+                            <div class="hidden md:block text-emerald-100 mr-3">
+                                Welcome, {{ user.first_name }}!
+                            </div>
+                            <a href="{% url 'logout' %}" class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition font-semibold shadow-md">Logout</a>
+                        {% else %}
+                            <a href="/login/" class="px-4 py-2 rounded-md bg-white text-emerald-700 hover:bg-amber-100 transition font-semibold shadow-md">Login</a>
+                            <a href="/register/" class="px-4 py-2 rounded-md bg-amber-400 text-emerald-900 hover:bg-amber-300 transition font-semibold shadow-md">Sign Up</a>
+                        {% endif %}
+                        
+                        <!-- Mobile menu button -->
+                        <div class="md:hidden">
+                            <button id="mobile-menu-button" class="text-white focus:outline-none">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu (Hidden by default) -->
+                <div id="mobile-menu" class="md:hidden hidden pt-4 pb-2">
+                    <a href="/" class="block py-2 text-white hover:bg-emerald-700 rounded px-2">Home</a>
+                    <a href="/about/" class="block py-2 text-white hover:bg-emerald-700 rounded px-2">About Us</a>
+                    <a href="/marketplace/" class="block py-2 text-white hover:bg-emerald-700 rounded px-2">Marketplace</a>
+                    <a href="/farmer-portal/dashboard/" class="block py-2 text-white hover:bg-emerald-700 rounded px-2">Farmer Dashboard</a>
+                    <a href="/admin-portal/login/" class="block py-2 text-white hover:bg-emerald-700 rounded px-2">Verifier Portal</a>
+                </div>
+            </div>
+        </nav>
+        {% endblock header %}
+
+        <main class="flex-grow">
+            {% block content %}
+            <!-- Page content goes here -->
+            {% endblock content %}
+        </main>
+
+        {% block footer %}
+        <!-- Default Footer - can be overridden by templates -->
+        <footer class="bg-emerald-900 text-white py-10">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">NaturalFarm Market</h3>
+                        <p class="text-emerald-100">Connecting farmers and consumers for fresher, healthier food and a more sustainable future.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="/" class="text-emerald-100 hover:text-white">Home</a></li>
+                            <li><a href="/about/" class="text-emerald-100 hover:text-white">About Us</a></li>
+                            <li><a href="/marketplace/" class="text-emerald-100 hover:text-white">Marketplace</a></li>
+                            <li><a href="/register/" class="text-emerald-100 hover:text-white">Sign Up</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Contact Us</h3>
+                        <p class="text-emerald-100">Email: info@naturalfarm.com</p>
+                        <p class="text-emerald-100">Phone: +91-123-456-7890</p>
+                    </div>
+                </div>
+                <div class="border-t border-emerald-800 mt-8 pt-8 text-center">
+                    <p>&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+        {% endblock footer %}
+    {% endblock body %}
+
+    <!-- Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

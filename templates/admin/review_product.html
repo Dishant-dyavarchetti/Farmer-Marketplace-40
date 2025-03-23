@@ -125,14 +125,12 @@
                         <div>
                             <p class="text-sm text-gray-600 mb-1">Verification Status</p>
                             <p class="font-medium">
-                                {% if farmer.verification_status == 'verified' %}
-                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Verified</span>
-                                {% elif farmer.verification_status == 'pending' %}
-                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending Verification</span>
-                                {% elif farmer.verification_status == 'rejected' %}
-                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Verification Rejected</span>
+                                {% if farmer.is_verified %}
+                                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Verified Farmer</span>
+                                {% elif verification.status == 'pending' %}
+                                <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Verification Pending</span>
                                 {% else %}
-                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Not Submitted</span>
+                                <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Not Verified</span>
                                 {% endif %}
                             </p>
                         </div>

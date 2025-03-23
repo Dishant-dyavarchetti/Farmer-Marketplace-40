@@ -1,75 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natural Farming Marketplace</title>
-    {% load static %}
-    {% load tailwind_tags %}
-    {% tailwind_css %}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .text-shadow {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-    </style>
-</head>
-<body class="bg-amber-50 font-sans">
-    <!-- Navigation Bar -->
-    <nav class="bg-emerald-800 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
-                </div>
-                
-                <div class="hidden md:flex space-x-6">
-                    <a href="/about" class="text-lg hover:text-amber-200 font-medium">About Us</a>
-                    <a href="#how-it-works" class="text-lg hover:text-amber-200 font-medium">How It Works</a>
-                    <a href="/farmer-portal/dashboard/" class="text-lg hover:text-amber-200 font-medium">Farmers Dashboard</a>
-                    <a href="{% url 'marketplace' %}" class="text-lg hover:text-amber-200 font-medium">Marketplace</a>
-                    <a href="/admin-portal/login/" class="text-lg hover:text-amber-200 font-medium">Verifier Page</a>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <a href="/login" class="px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-500 transition font-semibold text-lg shadow-md">Login</a>
-                    <a href="/register" class="px-5 py-2.5 rounded-md bg-amber-400 text-emerald-900 hover:bg-amber-300 transition font-semibold text-lg shadow-md">Sign Up</a>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button class="mobile-menu-button">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Mobile menu -->
-            <div class="mobile-menu hidden md:hidden mt-4 pb-4">
-                <a href="/about" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">About Us</a>
-                <a href="#how-it-works" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">How It Works</a>
-                <a href="/farmer-portal/farmers-dashboard/" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Farmers Dashboard</a>
-                <a href="{% url 'marketplace' %}" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Marketplace</a>
-                <a href="/admin-portal/login/" class="block py-3 hover:bg-emerald-700 px-4 rounded text-lg">Verifier Page</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'base.html' %}
+{% load static %}
 
+{% block title %}NaturalFarm Market - Organic Produce Direct from Farmers{% endblock %}
+
+{% block content %}
+<div class="relative">
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-emerald-800 to-emerald-600 text-white z-10">
+    <div class="bg-gradient-to-br from-emerald-800 to-emerald-600 text-white z-10">
         <div class="container mx-auto px-6 py-24">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2 mb-12 md:mb-0">
-                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight text-shadow">From Farm to Table, Naturally</h1>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">From Farm to Table, Naturally</h1>
                     <p class="text-xl md:text-2xl mb-10 text-white leading-relaxed">Connecting verified natural farmers directly with conscious consumers. Experience transparency, authenticity, and quality.</p>
                     <div class="flex flex-wrap gap-5">
-                        <a href="/login" class="px-8 py-4 bg-amber-400 text-emerald-900 font-bold rounded-lg hover:bg-amber-300 transition transform hover:scale-105 inline-block shadow-lg text-xl">Join as Farmer</a>
-                        <a href="/browse-products" class="px-8 py-4 bg-white text-emerald-800 font-bold rounded-lg hover:bg-amber-50 transition transform hover:scale-105 inline-block shadow-lg text-xl">Browse as Consumer</a>
+                        <a href="/register/" class="px-8 py-4 bg-amber-400 text-emerald-900 font-bold rounded-lg hover:bg-amber-300 transition transform hover:scale-105 inline-block shadow-lg text-xl">Join as Farmer</a>
+                        <a href="/marketplace/" class="px-8 py-4 bg-white text-emerald-800 font-bold rounded-lg hover:bg-amber-50 transition transform hover:scale-105 inline-block shadow-lg text-xl">Browse as Consumer</a>
                     </div>
                 </div>
                 <div class="md:w-1/2">
@@ -77,151 +22,240 @@
                 </div>
             </div>
         </div>
-        <div class="absolute bottom-0 left-0 right-0">
-            {% comment %} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"> {% endcomment %}
-                {% comment %} <path fill="#fffbeb" fill-opacity="1" d="M0,128L48,112C96,96,192,64,288,69.3C384,75,480,117,576,144C672,171,768,181,864,170.7C960,160,1056,128,1152,117.3C1248,107,1344,117,1392,122.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path> {% endcomment %}
-            {% comment %} </svg> {% endcomment %}
-        </div>
-    </section>
+    </div>
 
-    <!-- Problem Overview Section -->
-    <section id="about" class="py-24 bg-amber-50">
+    <!-- Features Section -->
+    <div class="py-24 bg-amber-50">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-emerald-800 mb-16">The Benefits of Our Marketplace</h2>
-            <div class="grid md:grid-cols-2 gap-10">
-                <div class="bg-white p-10 rounded-xl shadow-xl border-2 border-amber-100">
-                    <h3 class="text-2xl md:text-3xl font-bold text-emerald-700 mb-6">Connecting Farmers and Consumers</h3>
-                    <p class="mb-6 text-gray-800 text-xl leading-relaxed">Our platform bridges the gap between natural farmers and conscious consumers, fostering a community that values sustainable practices.</p>
-                    <ul class="list-disc pl-6 space-y-4 text-gray-700 text-lg">
-                        <li>Direct access to consumers who appreciate natural farming.</li>
-                        <li>Enhanced visibility for farmers' products.</li>
-                        <li>Opportunities for farmers to showcase their practices.</li>
-                        <li>Increased consumer confidence through verified products.</li>
-                    </ul>
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-emerald-800 mb-4">Why Choose Natural Farming?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-xl">Natural farming practices respect the environment and produce healthier food without harmful chemicals.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <div class="inline-block p-4 bg-emerald-100 rounded-lg text-emerald-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Chemical-Free Produce</h3>
+                    <p class="text-gray-600 text-lg">Our farmers do not use chemical pesticides or fertilizers, ensuring your food is free from harmful residues.</p>
                 </div>
-                <div class="bg-white p-10 rounded-xl shadow-xl border-2 border-amber-100">
-                    <h3 class="text-2xl md:text-3xl font-bold text-emerald-700 mb-6">Building Trust and Transparency</h3>
-                    <p class="mb-6 text-gray-800 text-xl leading-relaxed">We prioritize transparency and trust, ensuring that consumers can verify the authenticity of the products they purchase.</p>
-                    <ul class="list-disc pl-6 space-y-4 text-gray-700 text-lg">
-                        <li>Real-time traceability using QR codes.</li>
-                        <li>Verified farmer certification to enhance trust.</li>
-                        <li>Direct transactions with fair pricing.</li>
-                        <li>A user-friendly platform designed for easy navigation.</li>
-                    </ul>
+                
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <div class="inline-block p-4 bg-emerald-100 rounded-lg text-emerald-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Fair Pricing</h3>
+                    <p class="text-gray-600 text-lg">By connecting directly with farmers, you get fresh produce at fair prices while ensuring farmers get their due share.</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <div class="inline-block p-4 bg-emerald-100 rounded-lg text-emerald-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Better Health</h3>
+                    <p class="text-gray-600 text-lg">Natural farming produces nutritionally superior food that promotes better health and wellbeing.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Solution Overview Section -->
-    <section id="how-it-works" class="py-24 bg-white">
+    <!-- How It Works Section -->
+    <div class="py-24 bg-white">
         <div class="container mx-auto px-6">
-            <h2 class="text-4xl font-bold text-center text-emerald-800 mb-16">Our Solution</h2>
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <p class="text-2xl text-gray-700 leading-relaxed">We've developed a digital marketplace that connects verified natural farmers directly with consumers, ensuring transparency and authenticity at every step.</p>
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-emerald-800 mb-4">How It Works</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-xl">Our platform makes it easy to connect farmers and consumers.</p>
             </div>
-            <div class="grid md:grid-cols-3 gap-10">
-                <div class="bg-amber-50 p-10 rounded-xl shadow-xl border-2 border-amber-100 transition hover:transform hover:scale-105">
-                    <div class="bg-emerald-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-emerald-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="text-center">
+                    <div class="relative">
+                        <div class="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-700 font-bold text-3xl border-4 border-emerald-200">
+                            1
+                        </div>
+                        <div class="hidden md:block absolute top-12 left-full w-full h-1 bg-emerald-200 -z-10"></div>
                     </div>
-                    <h3 class="text-2xl font-bold text-emerald-700 mb-5 text-center">Farmer Verification System</h3>
-                    <p class="text-gray-700 text-lg leading-relaxed">Digital certification process that verifies natural farming practices and builds trust with consumers.</p>
+                    <h3 class="text-2xl font-semibold text-emerald-800 mb-4">Sign Up</h3>
+                    <p class="text-gray-600 text-lg">Create your account as a farmer or consumer in minutes.</p>
                 </div>
-                <div class="bg-amber-50 p-10 rounded-xl shadow-xl border-2 border-amber-100 transition hover:transform hover:scale-105">
-                    <div class="bg-emerald-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-emerald-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
+                
+                <div class="text-center">
+                    <div class="relative">
+                        <div class="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-700 font-bold text-3xl border-4 border-emerald-200">
+                            2
+                        </div>
+                        <div class="hidden md:block absolute top-12 left-full w-full h-1 bg-emerald-200 -z-10"></div>
                     </div>
-                    <h3 class="text-2xl font-bold text-emerald-700 mb-5 text-center">QR Code Traceability</h3>
-                    <p class="text-gray-700 text-lg leading-relaxed">Real-time product authentication using QR codes that reveal the complete journey from farm to table.</p>
+                    <h3 class="text-2xl font-semibold text-emerald-800 mb-4">Browse Products</h3>
+                    <p class="text-gray-600 text-lg">Explore verified organic produce from local farmers near you.</p>
                 </div>
-                <div class="bg-amber-50 p-10 rounded-xl shadow-xl border-2 border-amber-100 transition hover:transform hover:scale-105">
-                    <div class="bg-emerald-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-emerald-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
+                
+                <div class="text-center">
+                    <div class="relative">
+                        <div class="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-700 font-bold text-3xl border-4 border-emerald-200">
+                            3
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-bold text-emerald-700 mb-5 text-center">Direct-to-Consumer Marketplace</h3>
-                    <p class="text-gray-700 text-lg leading-relaxed">Eliminates intermediaries, ensuring fair prices for farmers and authentic products for consumers.</p>
+                    <h3 class="text-2xl font-semibold text-emerald-800 mb-4">Order & Receive</h3>
+                    <p class="text-gray-600 text-lg">Place your order and receive fresh produce directly at your doorstep.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Featured Products Section -->
+    <div class="py-24 bg-emerald-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-4xl font-bold text-emerald-800">Featured Products</h2>
+                <a href="/marketplace/" class="text-emerald-600 hover:text-emerald-800 font-medium text-lg">View All Products →</a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Product Card 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-52 w-full bg-gray-200">
+                        <img src="{% static 'images/product1.jpg' %}" alt="Organic Rice" class="h-full w-full object-cover" onerror="this.src='https://placehold.co/400x300/E9D5FF/4B5563?text=Organic+Rice'">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-emerald-600 font-semibold">Grains</p>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">Organic</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Organic Brown Rice</h3>
+                        <p class="text-gray-600 text-sm mb-4">by Krishna Farms</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-emerald-700 font-bold text-lg">₹180/kg</p>
+                            <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Card 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-52 w-full bg-gray-200">
+                        <img src="{% static 'images/product2.jpg' %}" alt="Organic Honey" class="h-full w-full object-cover" onerror="this.src='https://placehold.co/400x300/FEF3C7/4B5563?text=Wild+Honey'">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-emerald-600 font-semibold">Honey</p>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">Organic</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Wild Forest Honey</h3>
+                        <p class="text-gray-600 text-sm mb-4">by Himalayan Valley</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-emerald-700 font-bold text-lg">₹650/kg</p>
+                            <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Card 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-52 w-full bg-gray-200">
+                        <img src="{% static 'images/product3.jpg' %}" alt="Organic Turmeric" class="h-full w-full object-cover" onerror="this.src='https://placehold.co/400x300/FEF08A/4B5563?text=Turmeric+Powder'">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-emerald-600 font-semibold">Spices</p>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">Organic</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Pure Turmeric Powder</h3>
+                        <p class="text-gray-600 text-sm mb-4">by Sunshine Farms</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-emerald-700 font-bold text-lg">₹95/100g</p>
+                            <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Card 4 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-52 w-full bg-gray-200">
+                        <img src="{% static 'images/product4.jpg' %}" alt="Organic Vegetables" class="h-full w-full object-cover" onerror="this.src='https://placehold.co/400x300/D1FAE5/4B5563?text=Vegetable+Basket'">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-emerald-600 font-semibold">Vegetables</p>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">Organic</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Fresh Vegetable Basket</h3>
+                        <p class="text-gray-600 text-sm mb-4">by Green Gardens</p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-emerald-700 font-bold text-lg">₹450/basket</p>
+                            <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-emerald-800 mb-4">What Our Users Say</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-xl">Hear from our happy farmers and consumers.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- Testimonial 1 -->
+                <div class="bg-amber-50 p-8 rounded-lg shadow-md">
+                    <div class="flex items-center mb-6">
+                        <div class="h-16 w-16 rounded-full bg-emerald-200 flex items-center justify-center mr-4">
+                            <span class="text-emerald-700 font-bold text-xl">RS</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-xl">Rajesh Singh</h4>
+                            <p class="text-gray-600">Organic Farmer from Punjab</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 text-lg leading-relaxed">"I've been able to reach more customers and get better prices for my produce. The verification process was smooth, and I now have a steady stream of orders."</p>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-amber-50 p-8 rounded-lg shadow-md">
+                    <div class="flex items-center mb-6">
+                        <div class="h-16 w-16 rounded-full bg-emerald-200 flex items-center justify-center mr-4">
+                            <span class="text-emerald-700 font-bold text-xl">AM</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 text-xl">Anjali Mehta</h4>
+                            <p class="text-gray-600">Consumer from Mumbai</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 text-lg leading-relaxed">"Finding chemical-free, authentic organic produce was always a challenge until I discovered NaturalFarm Market. I can taste the difference in the food, and my family loves it!"</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-br from-emerald-800 to-emerald-600 text-white">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="md:w-2/3 mb-10 md:mb-0">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-shadow">Discover Authentic Natural Products Today</h2>
-                    <p class="text-xl md:text-2xl text-white leading-relaxed">Whether you're a natural farmer looking for fair markets or a consumer seeking authentic products, we're here to connect you.</p>
-                </div>
-                <div class="md:w-1/3 flex flex-col space-y-6">
-                    <a href="/register" class="px-8 py-5 bg-amber-400 text-emerald-900 font-bold rounded-lg hover:bg-amber-300 transition text-center shadow-lg text-xl">Join as Farmer</a>
-                    <a href="/browse-products" class="px-8 py-5 bg-white text-emerald-800 font-bold rounded-lg hover:bg-amber-50 transition text-center shadow-lg text-xl">Browse as Consumer</a>
-                </div>
+    <div class="py-20 bg-gradient-to-br from-emerald-800 to-emerald-600 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-6">Ready to Join the Natural Farming Revolution?</h2>
+            <p class="text-emerald-100 max-w-2xl mx-auto mb-10 text-xl">Create your account today and start enjoying the benefits of organic, chemical-free produce.</p>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="/register/" class="px-8 py-4 bg-amber-400 text-emerald-900 font-bold rounded-lg hover:bg-amber-300 transition shadow-lg text-xl">Sign Up as Consumer</a>
+                <a href="/register/" class="px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-emerald-800 transition shadow-lg text-xl">Sign Up as Farmer</a>
             </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-emerald-900 text-white py-20">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-10">
-                <div>
-                    <h3 class="text-2xl font-bold mb-8">NaturalFarm Market</h3>
-                    <p class="text-white text-lg leading-relaxed">Connecting verified natural farmers with conscious consumers for a sustainable future.</p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-8">Quick Links</h3>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Home</a></li>
-                        <li><a href="/about" class="text-white hover:text-amber-200 text-lg">About Us</a></li>
-                        <li><a href="#how-it-works" class="text-white hover:text-amber-200 text-lg">How It Works</a></li>
-                        <li><a href="/login" class="text-white hover:text-amber-200 text-lg">Login</a></li>
-                        <li><a href="/register" class="text-white hover:text-amber-200 text-lg">Sign Up</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-8">For Farmers</h3>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Verification Process</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Product Listing</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Certification</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Farmer FAQ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-8">For Consumers</h3>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Browse Products</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">QR Verification</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Delivery Info</a></li>
-                        <li><a href="#" class="text-white hover:text-amber-200 text-lg">Consumer FAQ</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-emerald-700 mt-16 pt-10 text-center">
-                <p class="text-lg">&copy; 2023 NaturalFarm Market. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Simple JavaScript for mobile menu toggle -->
-    <script>
-        // Mobile menu toggle
-        const mobileMenuButton = document.querySelector('.mobile-menu-button');
-        const mobileMenu = document.querySelector('.mobile-menu');
-        
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
-    </script>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}

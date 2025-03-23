@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Natural Farming Marketplace</title>
+    <title>Join NaturalFarm Market - Register as Farmer or Consumer</title>
     {% load static %}
     {% load tailwind_tags %}
     {% tailwind_css %}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -22,6 +23,14 @@
         .form-container.active {
             display: block;
         }
+        .form-section {
+            transition: all 0.3s ease;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body class="bg-amber-50">
@@ -29,83 +38,149 @@
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <a href="/" class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</a>
-                <a href="/login" class="px-5 py-2.5 rounded-md bg-amber-400 text-emerald-900 hover:bg-amber-300 transition font-semibold text-lg shadow-md">Login</a>
+                <a href="/login/" class="px-5 py-2.5 rounded-md bg-amber-400 text-emerald-900 hover:bg-amber-300 transition font-semibold text-lg shadow-md">Login</a>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-6 py-16">
-        <h1 class="text-4xl font-bold text-center text-emerald-800 mb-10">Join Our Community</h1>
+    <div class="container mx-auto px-6 py-12">
+        <h1 class="text-4xl font-bold text-center text-emerald-800 mb-6">Join Our Farming Community</h1>
+        <p class="text-lg text-center text-gray-600 mb-10 max-w-2xl mx-auto">Connect with local farmers, discover fresh organic produce, or sell your farm products directly to consumers.</p>
+        
+        {% if messages %}
+        <div class="max-w-2xl mx-auto mb-6">
+            {% for message in messages %}
+            <div class="p-4 {% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %}" role="alert">
+                <p>{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         
         <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold text-center text-emerald-700 mb-6">Create Your Account</h2>
             
             <!-- User Type Selection -->
             <div class="mb-8">
-                <p class="text-lg font-medium text-gray-700 mb-3">I want to register as a:</p>
+                <p class="text-lg font-medium text-gray-700 mb-3">I want to join as:</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div id="farmer-option" class="signup-option border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition">
                         <div class="bg-emerald-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
+                            <i class="fas fa-tractor text-2xl text-emerald-700"></i>
                         </div>
                         <span class="font-medium text-lg text-emerald-800">Farmer</span>
+                        <p class="text-sm text-gray-600 mt-2">Sell your farm products directly to consumers</p>
                     </div>
                     <div id="consumer-option" class="signup-option border-2 border-gray-200 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition">
                         <div class="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
+                            <i class="fas fa-shopping-basket text-2xl text-amber-700"></i>
                         </div>
                         <span class="font-medium text-lg text-amber-800">Consumer</span>
+                        <p class="text-sm text-gray-600 mt-2">Buy fresh organic products directly from local farmers</p>
                     </div>
                 </div>
             </div>
             
             <!-- Farmer Registration Form -->
             <div id="farmer-form" class="form-container">
-                <form action="/farmer/register" method="POST">
+                <form action="/register/" method="POST" class="space-y-4">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" value="farmer">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    
+                    <div class="bg-emerald-50 p-4 rounded-lg mb-6">
+                        <h3 class="text-lg font-medium text-emerald-800 mb-2">Farmer Registration</h3>
+                        <p class="text-sm text-emerald-600">Join as a farmer to sell your products directly to consumers.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="farmer_first_name" class="block text-md font-medium text-gray-700">First Name</label>
+                            <label for="farmer_first_name" class="block text-md font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
                             <input type="text" id="farmer_first_name" name="first_name" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your first name">
                         </div>
                         <div>
-                            <label for="farmer_last_name" class="block text-md font-medium text-gray-700">Last Name</label>
+                            <label for="farmer_last_name" class="block text-md font-medium text-gray-700">Last Name <span class="text-red-500">*</span></label>
                             <input type="text" id="farmer_last_name" name="last_name" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your last name">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    
+                    <div>
+                        <label for="farmer_username" class="block text-md font-medium text-gray-700">Username <span class="text-red-500">*</span></label>
+                        <input type="text" id="farmer_username" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Choose a unique username">
+                        <p class="text-xs text-gray-500 mt-1">Username will be used for logging in to your account</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="farmer_email" class="block text-md font-medium text-gray-700">Email</label>
+                            <label for="farmer_email" class="block text-md font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
                             <input type="email" id="farmer_email" name="email" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your email">
                         </div>
                         <div>
-                            <label for="farmer_phone" class="block text-md font-medium text-gray-700">Phone Number</label>
+                            <label for="farmer_phone" class="block text-md font-medium text-gray-700">Phone Number <span class="text-red-500">*</span></label>
                             <input type="tel" id="farmer_phone" name="phone_number" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your phone number">
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label for="farmer_address" class="block text-md font-medium text-gray-700">Address</label>
-                        <input type="text" id="farmer_address" name="address" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your address">
+                    
+                    <div>
+                        <label for="farmer_address" class="block text-md font-medium text-gray-700">Address <span class="text-red-500">*</span></label>
+                        <input type="text" id="farmer_address" name="address" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your full address">
                     </div>
-                    <div class="mb-4">
-                        <label for="farmer_farm_place" class="block text-md font-medium text-gray-700">Farm Location</label>
-                        <input type="text" id="farmer_farm_place" name="farm_place" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your farm location">
+                    
+                    <div>
+                        <label for="farmer_farm_location" class="block text-md font-medium text-gray-700">Farm Location <span class="text-red-500">*</span></label>
+                        <input type="text" id="farmer_farm_location" name="farm_location" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your farm location">
+                        <p class="text-xs text-gray-500 mt-1">This helps customers find local farms in their area</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    
+                    <div>
+                        <label for="farmer_origin_state" class="block text-md font-medium text-gray-700">State/Region <span class="text-red-500">*</span></label>
+                        <select id="farmer_origin_state" name="origin_state" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="" disabled selected>Select your state</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="farmer_password" class="block text-md font-medium text-gray-700">Password</label>
-                            <input type="password" id="farmer_password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Create a password">
+                            <label for="farmer_password" class="block text-md font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
+                            <input type="password" id="farmer_password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Create a strong password">
                         </div>
                         <div>
-                            <label for="farmer_confirm_password" class="block text-md font-medium text-gray-700">Confirm Password</label>
+                            <label for="farmer_confirm_password" class="block text-md font-medium text-gray-700">Confirm Password <span class="text-red-500">*</span></label>
                             <input type="password" id="farmer_confirm_password" name="confirm_password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Confirm your password">
                         </div>
                     </div>
+                    
+                    <div class="bg-amber-50 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-amber-800"><i class="fas fa-info-circle mr-2"></i> After registration, you'll need to verify your farmer status to start selling products.</p>
+                    </div>
+                    
                     <div class="flex justify-center">
                         <button type="submit" class="w-full px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-500 transition">Register as Farmer</button>
                     </div>
@@ -114,39 +189,69 @@
             
             <!-- Consumer Registration Form -->
             <div id="consumer-form" class="form-container">
-                <form action="/consumer/register" method="POST">
+                <form action="/register/" method="POST" class="space-y-4">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" value="consumer">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    
+                    <div class="bg-amber-50 p-4 rounded-lg mb-6">
+                        <h3 class="text-lg font-medium text-amber-800 mb-2">Consumer Registration</h3>
+                        <p class="text-sm text-amber-600">Join as a consumer to buy fresh produce directly from farmers.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="consumer_first_name" class="block text-md font-medium text-gray-700">First Name</label>
+                            <label for="consumer_first_name" class="block text-md font-medium text-gray-700">First Name <span class="text-red-500">*</span></label>
                             <input type="text" id="consumer_first_name" name="first_name" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your first name">
                         </div>
                         <div>
-                            <label for="consumer_last_name" class="block text-md font-medium text-gray-700">Last Name</label>
+                            <label for="consumer_last_name" class="block text-md font-medium text-gray-700">Last Name <span class="text-red-500">*</span></label>
                             <input type="text" id="consumer_last_name" name="last_name" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your last name">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    
+                    <div>
+                        <label for="consumer_username" class="block text-md font-medium text-gray-700">Username <span class="text-red-500">*</span></label>
+                        <input type="text" id="consumer_username" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Choose a unique username">
+                        <p class="text-xs text-gray-500 mt-1">Username will be used for logging in to your account</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="consumer_email" class="block text-md font-medium text-gray-700">Email</label>
+                            <label for="consumer_email" class="block text-md font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
                             <input type="email" id="consumer_email" name="email" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your email">
                         </div>
                         <div>
-                            <label for="consumer_phone" class="block text-md font-medium text-gray-700">Phone Number</label>
+                            <label for="consumer_phone" class="block text-md font-medium text-gray-700">Phone Number <span class="text-red-500">*</span></label>
                             <input type="tel" id="consumer_phone" name="phone_number" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your phone number">
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    
+                    <div>
+                        <label for="consumer_address" class="block text-md font-medium text-gray-700">Delivery Address <span class="text-red-500">*</span></label>
+                        <input type="text" id="consumer_address" name="address" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Enter your delivery address">
+                    </div>
+                    
+                    <div>
+                        <label for="consumer_preferred_delivery" class="block text-md font-medium text-gray-700">Preferred Delivery Time</label>
+                        <select id="consumer_preferred_delivery" name="preferred_delivery_time" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="morning">Morning (8 AM - 12 PM)</option>
+                            <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
+                            <option value="evening">Evening (4 PM - 8 PM)</option>
+                            <option value="anytime">Anytime</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="consumer_password" class="block text-md font-medium text-gray-700">Password</label>
-                            <input type="password" id="consumer_password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Create a password">
+                            <label for="consumer_password" class="block text-md font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
+                            <input type="password" id="consumer_password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Create a strong password">
                         </div>
                         <div>
-                            <label for="consumer_confirm_password" class="block text-md font-medium text-gray-700">Confirm Password</label>
+                            <label for="consumer_confirm_password" class="block text-md font-medium text-gray-700">Confirm Password <span class="text-red-500">*</span></label>
                             <input type="password" id="consumer_confirm_password" name="confirm_password" required class="mt-1 block w-full border border-gray-300 rounded-md p-2" placeholder="Confirm your password">
                         </div>
                     </div>
+                    
                     <div class="flex justify-center">
                         <button type="submit" class="w-full px-6 py-3 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-400 transition">Register as Consumer</button>
                     </div>
@@ -154,14 +259,36 @@
             </div>
             
             <div class="mt-6 text-center">
-                <p class="text-gray-600">Already have an account? <a href="/login" class="text-emerald-600 hover:text-emerald-800">Login here</a></p>
+                <p class="text-gray-600">Already have an account? <a href="/login/" class="text-emerald-600 hover:text-emerald-800 font-medium">Login here</a></p>
             </div>
         </div>
     </div>
 
-    <footer class="bg-emerald-900 text-white py-12">
-        <div class="container mx-auto px-6 text-center">
-            <p class="text-lg">&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+    <footer class="bg-emerald-900 text-white py-10 mt-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">NaturalFarm Market</h3>
+                    <p class="text-emerald-100">Connecting farmers and consumers for fresher, healthier food and a more sustainable future.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-emerald-100 hover:text-white">Home</a></li>
+                        <li><a href="/about/" class="text-emerald-100 hover:text-white">About Us</a></li>
+                        <li><a href="/marketplace/" class="text-emerald-100 hover:text-white">Marketplace</a></li>
+                        <li><a href="/login/" class="text-emerald-100 hover:text-white">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Contact Us</h3>
+                    <p class="text-emerald-100">Email: info@naturalfarm.com</p>
+                    <p class="text-emerald-100">Phone: +91-123-456-7890</p>
+                </div>
+            </div>
+            <div class="border-t border-emerald-800 mt-8 pt-8 text-center">
+                <p>&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
@@ -177,6 +304,10 @@
             consumerOption.classList.remove('active');
             farmerForm.classList.add('active');
             consumerForm.classList.remove('active');
+            window.scrollTo({
+                top: farmerForm.offsetTop - 100,
+                behavior: 'smooth'
+            });
         });
         
         consumerOption.addEventListener('click', function() {
@@ -184,28 +315,34 @@
             farmerOption.classList.remove('active');
             consumerForm.classList.add('active');
             farmerForm.classList.remove('active');
+            window.scrollTo({
+                top: consumerForm.offsetTop - 100,
+                behavior: 'smooth'
+            });
         });
         
-        // Password validation
+        // Password validation for Farmer
         const farmerPassword = document.getElementById('farmer_password');
         const farmerConfirmPassword = document.getElementById('farmer_confirm_password');
+        
+        farmerConfirmPassword.addEventListener('input', function() {
+            if (farmerPassword.value != farmerConfirmPassword.value) {
+                farmerConfirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                farmerConfirmPassword.setCustomValidity('');
+            }
+        });
+        
+        // Password validation for Consumer
         const consumerPassword = document.getElementById('consumer_password');
         const consumerConfirmPassword = document.getElementById('consumer_confirm_password');
         
-        function validatePassword(password, confirmPassword) {
-            if (password.value != confirmPassword.value) {
-                confirmPassword.setCustomValidity("Passwords don't match");
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
-        }
-        
-        farmerConfirmPassword.addEventListener('input', function() {
-            validatePassword(farmerPassword, farmerConfirmPassword);
-        });
-        
         consumerConfirmPassword.addEventListener('input', function() {
-            validatePassword(consumerPassword, consumerConfirmPassword);
+            if (consumerPassword.value != consumerConfirmPassword.value) {
+                consumerConfirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                consumerConfirmPassword.setCustomValidity('');
+            }
         });
     </script>
 </body>

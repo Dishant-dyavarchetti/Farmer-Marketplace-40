@@ -126,12 +126,12 @@
                     </div>
                 </div>
                 
-                <button id="addProductBtn" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition duration-150 flex items-center">
+                <a href="{% url 'add_product' %}" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition duration-150 flex items-center">
                     <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Add New Product
-                </button>
+                </a>
             </div>
             
             <!-- Products List -->
@@ -149,137 +149,61 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Active Product -->
+                            {% for product in products %}
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="h-10 w-10 flex-shrink-0">
-                                            <img class="h-10 w-10 rounded-md object-cover" src="https://images.unsplash.com/photo-1586201375761-83865001e8ac?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&q=80" alt="">
+                                            {% if product.image %}
+                                                <img class="h-10 w-10 rounded-md object-cover" src="{{ product.image.url }}" alt="{{ product.name }}">
+                                            {% else %}
+                                                <div class="h-10 w-10 bg-emerald-100 rounded-md flex items-center justify-center text-emerald-500">
+                                                    <i class="fas fa-seedling"></i>
+                                                </div>
+                                            {% endif %}
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Organic Rice</div>
-                                            <div class="text-sm text-gray-500">5kg package</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                                            <div class="text-sm text-gray-500">{{ product.package_size }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Grains</div>
+                                    <div class="text-sm text-gray-900">{{ product.category.name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">₹450</div>
+                                    <div class="text-sm text-gray-900">₹{{ product.price }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">50 units</div>
+                                    <div class="text-sm text-gray-900">{{ product.stock }} {{ product.unit }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    {% if product.status == 'active' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    {% elif product.status == 'pending' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    {% elif product.status == 'draft' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
+                                    {% elif product.status == 'rejected' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
+                                    {% elif product.status == 'out_of_stock' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-red-800">Out of Stock</span>
+                                    {% endif %}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="1">Edit</button>
-                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="1">Delete</button>
+                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="{{ product.id }}">Edit</button>
+                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="{{ product.id }}">Delete</button>
                                     </div>
                                 </td>
                             </tr>
-                            
-                            <!-- Pending Product -->
+                            {% empty %}
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 flex-shrink-0">
-                                            <img class="h-10 w-10 rounded-md object-cover" src="https://images.unsplash.com/photo-1615485500704-8e990f9500b4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&q=80" alt="">
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Fresh Turmeric</div>
-                                            <div class="text-sm text-gray-500">500g package</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Spices</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">₹120</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">25 units</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="2">Edit</button>
-                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="2">Delete</button>
-                                    </div>
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    You haven't added any products yet. Click "Add New Product" to get started.
                                 </td>
                             </tr>
-                            
-                            <!-- Draft Product -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 flex-shrink-0">
-                                            <img class="h-10 w-10 rounded-md object-cover" src="https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&q=80" alt="">
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Natural Honey</div>
-                                            <div class="text-sm text-gray-500">1kg jar</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Sweeteners</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">₹650</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">15 units</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="3">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Active Product 2 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 flex-shrink-0">
-                                            <img class="h-10 w-10 rounded-md object-cover" src="https://images.unsplash.com/photo-1598170845058-16ddb5c6cf7f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&q=80" alt="">
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Organic Green Lentils</div>
-                                            <div class="text-sm text-gray-500">2kg package</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Pulses</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">₹280</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">35 units</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="4">Edit</button>
-                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="4">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

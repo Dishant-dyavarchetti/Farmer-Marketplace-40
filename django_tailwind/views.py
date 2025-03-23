@@ -5,7 +5,8 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, F
+from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
 from accounts.models import (
     Farmer, Consumer, FarmerVerification, SupportingDocument,
@@ -13,6 +14,7 @@ from accounts.models import (
 )
 import os
 from datetime import timedelta
+import json
 
 def home(request):
     return render(request, 'homepage.html')
@@ -21,18 +23,33 @@ def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        user_type = request.POST.get('user_type')
+        
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
-            auth_login(request, user)
+            # Check if the user type matches
+            is_correct_type = False
             
-            # Redirect based on user type
-            if is_admin_or_verifier(user):
-                return redirect('admin_dashboard')
-            elif is_farmer(user):
-                return redirect('farmer_dashboard')
+            if user_type == 'farmer' and is_farmer(user):
+                is_correct_type = True
+            elif user_type == 'consumer' and user.groups.filter(name='Consumers').exists():
+                is_correct_type = True
+            elif is_admin_or_verifier(user):
+                is_correct_type = True  # Admins and verifiers can log in as any type
+            
+            if is_correct_type:
+                auth_login(request, user)
+                
+                # Redirect based on user type
+                if is_admin_or_verifier(user):
+                    return redirect('admin_dashboard')
+                elif is_farmer(user):
+                    return redirect('farmer_dashboard')
+                else:
+                    return redirect('home')  # Consumer or other user type
             else:
-                return redirect('home')  # Consumer or other user type
+                messages.error(request, f'This account is not registered as a {user_type}.')
         else:
             messages.error(request, 'Invalid username or password')
     
@@ -41,11 +58,15 @@ def login(request):
 def register(request):
     if request.method == 'POST':
         # Process registration form
+        user_type = request.POST.get('user_type')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         username = request.POST.get('username')
         email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        address = request.POST.get('address')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-        user_type = request.POST.get('user_type')
         
         # Validate form data
         if password != confirm_password:
@@ -67,25 +88,45 @@ def register(request):
             user = User.objects.create_user(
                 username=username,
                 email=email,
-                password=password
+                password=password,
+                first_name=first_name,
+                last_name=last_name
             )
             
             # Assign user to appropriate group
             if user_type == 'farmer':
+                farm_location = request.POST.get('farm_location')
+                origin_state = request.POST.get('origin_state')
+                
                 farmer_group, _ = Group.objects.get_or_create(name='Farmers')
                 user.groups.add(farmer_group)
+                
                 # Create farmer profile
                 Farmer.objects.create(
                     user=user,
+                    phone_number=phone_number,
+                    address=address,
+                    farm_location=farm_location,
+                    origin_state=origin_state,
                     is_verified=False,
                 )
+                
+                messages.success(request, 'Your farmer account has been created successfully! You can now upload your certification for verification.')
             else:
+                preferred_delivery_time = request.POST.get('preferred_delivery_time', 'anytime')
+                
                 consumer_group, _ = Group.objects.get_or_create(name='Consumers')
                 user.groups.add(consumer_group)
+                
                 # Create consumer profile
                 Consumer.objects.create(
                     user=user,
+                    phone_number=phone_number,
+                    shipping_address=address,
+                    preferred_delivery_time=preferred_delivery_time,
                 )
+                
+                messages.success(request, 'Your consumer account has been created successfully! You can now browse and purchase organic products.')
             
             # Log the user in
             auth_login(request, user)
@@ -213,36 +254,115 @@ def create_admin_user(request):
 @login_required(login_url='/admin-portal/login/')
 @user_passes_test(is_admin_or_verifier, login_url='/admin-portal/login/')
 def admin_dashboard(request):
-    # Get counts for dashboard statistics
-    farmers_count = Farmer.objects.count()
-    pending_verifications = FarmerVerification.objects.filter(status='pending').count()
-    pending_products = Product.objects.filter(status='pending').count()
-    recent_orders = Order.objects.order_by('-created_at')[:5]
+    """
+    View for admin dashboard 
+    Requires admin login
+    """
+    if not is_admin_or_verifier(request.user):
+        return redirect('admin_login')
     
+    # Fetch counts from database
+    try:
+        # Farmer statistics
+        total_farmers = Farmer.objects.count()
+        pending_verification = FarmerVerification.objects.filter(status='pending').count()
+        verified_farmers = FarmerVerification.objects.filter(status='approved').count()
+        
+        # Product statistics
+        total_products = Product.objects.count()
+        pending_products = Product.objects.filter(status='pending').count()
+        approved_products = Product.objects.filter(status='approved').count()
+        
+        # Order statistics
+        total_orders = Order.objects.count()
+        pending_orders = Order.objects.filter(status='pending').count()
+        processing_orders = Order.objects.filter(status='processing').count()
+        completed_orders = Order.objects.filter(status='delivered').count()
+        
+        # Revenue calculation
+        total_revenue = Order.objects.filter(payment_status='paid').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        # Recent farmers for the table
+        recent_farmers = Farmer.objects.all().order_by('-date_joined')[:5]
+        
+        # Recent orders for the table
+        recent_orders = Order.objects.all().order_by('-created_at')[:5] if hasattr(Order, 'created_at') else []
+        
+    except Exception as e:
+        # If database tables don't exist yet, use placeholders
+        total_farmers = 0
+        pending_verification = 0
+        verified_farmers = 0
+        total_products = 0
+        pending_products = 0
+        approved_products = 0
+        total_orders = 0
+        pending_orders = 0
+        processing_orders = 0
+        completed_orders = 0
+        total_revenue = 0
+        recent_farmers = []
+        recent_orders = []
+        
     context = {
-        'farmers_count': farmers_count,
-        'pending_verifications': pending_verifications,
+        'page_title': 'Admin Dashboard',
+        'total_farmers': total_farmers,
+        'pending_verification': pending_verification,
+        'verified_farmers': verified_farmers,
+        'total_products': total_products,
         'pending_products': pending_products,
+        'approved_products': approved_products,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'processing_orders': processing_orders,
+        'completed_orders': completed_orders,
+        'total_revenue': total_revenue,
+        'recent_farmers': recent_farmers,
         'recent_orders': recent_orders,
     }
     
     return render(request, 'admin_dashboard.html', context)
 
-@login_required(login_url='/admin-portal/login/')
+@login_required
 @user_passes_test(is_admin_or_verifier, login_url='/admin-portal/login/')
 def farmer_verification(request):
-    # Get pending farmer verifications
-    pending_verifications = FarmerVerification.objects.filter(status='pending').order_by('-submission_date')
-    approved_verifications = FarmerVerification.objects.filter(status='approved').order_by('-reviewed_at')
-    rejected_verifications = FarmerVerification.objects.filter(status='rejected').order_by('-reviewed_at')
+    """
+    View for admin to verify farmers
+    Displays list of farmers with pending verification
+    """
+    if not is_admin_or_verifier(request.user):
+        return redirect('admin_login')
+    
+    try:
+        # Get all verification requests, with newest first
+        pending_verifications = FarmerVerification.objects.filter(
+            status='pending'
+        ).select_related('farmer').order_by('-submission_date')
+        
+        # Get counts for filter badges
+        all_requests_count = FarmerVerification.objects.count()
+        pending_count = FarmerVerification.objects.filter(status='pending').count()
+        approved_count = FarmerVerification.objects.filter(status='approved').count()
+        rejected_count = FarmerVerification.objects.filter(status='rejected').count()
+        
+    except Exception as e:
+        # Use empty values if database tables don't exist yet
+        pending_verifications = []
+        all_requests_count = 0
+        pending_count = 0
+        approved_count = 0
+        rejected_count = 0
     
     context = {
+        'page_title': 'Farmer Verification',
         'pending_verifications': pending_verifications,
-        'approved_verifications': approved_verifications,
-        'rejected_verifications': rejected_verifications,
+        'all_requests_count': all_requests_count,
+        'pending_count': pending_count, 
+        'approved_count': approved_count,
+        'rejected_count': rejected_count
     }
     
-    return render(request, 'farmer_verification.html', context)
+    return render(request, 'admin_farmer_verification.html', context)
 
 @login_required
 @user_passes_test(is_admin_or_verifier)
@@ -256,8 +376,8 @@ def review_verification(request, verification_id):
         if action == 'approve':
             verification.status = 'approved'
             verification.rejection_reason = ''
-            # Update the farmer's verification status
-            verification.farmer.verification_status = 'verified'
+            # Update the farmer's verification status to verified
+            verification.farmer.is_verified = True
             verification.farmer.save()
         elif action == 'reject':
             verification.status = 'rejected'
@@ -307,135 +427,481 @@ def review_product(request, product_id):
     }
     return render(request, 'admin/review_product.html', context)
 
-@login_required(login_url='/admin-portal/login/')
+@login_required
 @user_passes_test(is_admin_or_verifier, login_url='/admin-portal/login/')
 def product_approval(request):
-    # Get pending products
-    pending_products = Product.objects.filter(status='pending').order_by('-created_at')
-    approved_products = Product.objects.filter(status='active').order_by('-updated_at')
-    rejected_products = Product.objects.filter(status='rejected').order_by('-updated_at')
+    """
+    View for admin to approve products
+    Displays list of products pending approval
+    """
+    if not is_admin_or_verifier(request.user):
+        return redirect('admin_login')
+    
+    try:
+        # Get products pending approval
+        pending_products = Product.objects.filter(
+            status='pending'
+        ).select_related('farmer').order_by('-created_at')
+        
+        # Get count statistics for the filter badges
+        all_products_count = Product.objects.count()
+        pending_count = Product.objects.filter(status='pending').count()
+        approved_count = Product.objects.filter(status='approved').count()
+        rejected_count = Product.objects.filter(status='rejected').count()
+        
+    except Exception as e:
+        # Use empty values if database tables don't exist yet
+        pending_products = []
+        all_products_count = 0
+        pending_count = 0
+        approved_count = 0
+        rejected_count = 0
     
     context = {
+        'page_title': 'Product Approval',
         'pending_products': pending_products,
-        'approved_products': approved_products,
-        'rejected_products': rejected_products,
+        'all_products_count': all_products_count,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count
     }
     
-    return render(request, 'product_approval.html', context)
+    return render(request, 'admin_product_approval.html', context)
 
-@login_required(login_url='/admin-portal/login/')
+@login_required
 @user_passes_test(is_admin_or_verifier, login_url='/admin-portal/login/')
 def manage_users(request):
-    # Get users by type
-    admin_users = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True)).order_by('-date_joined')
-    farmer_users = Farmer.objects.all().order_by('-date_joined')
-    consumer_users = Consumer.objects.all().order_by('-user__date_joined')
+    """
+    View for admin to manage users
+    Displays list of users with filtering options
+    """
+    if not is_admin_or_verifier(request.user):
+        return redirect('admin_login')
+    
+    # Get filter parameters
+    user_type_filter = request.GET.get('user_type', 'all')
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('search', '')
+    
+    try:
+        # Build base queryset for all users
+        users_queryset = User.objects.all()
+        
+        # Apply filters
+        if user_type_filter == 'admin':
+            users_queryset = users_queryset.filter(is_staff=True)
+        elif user_type_filter == 'farmer':
+            users_queryset = users_queryset.filter(farmer__isnull=False)
+        elif user_type_filter == 'consumer':
+            users_queryset = users_queryset.filter(consumer__isnull=False)
+            
+        if status_filter == 'active':
+            users_queryset = users_queryset.filter(is_active=True)
+        elif status_filter == 'inactive':
+            users_queryset = users_queryset.filter(is_active=False)
+        elif status_filter == 'verified_farmers':
+            users_queryset = users_queryset.filter(farmer__is_verified=True)
+        elif status_filter == 'unverified_farmers':
+            users_queryset = users_queryset.filter(farmer__is_verified=False)
+            
+        if search_query:
+            users_queryset = users_queryset.filter(
+                Q(username__icontains=search_query) | 
+                Q(email__icontains=search_query) |
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query)
+            )
+        
+        # Get user list (would be paginated in a real app)
+        users = users_queryset.order_by('-date_joined')[:50]
+        
+        # Calculate user statistics
+        total_users = User.objects.count()
+        total_admins = User.objects.filter(is_staff=True).count()
+        total_farmers = User.objects.filter(farmer__isnull=False).count()
+        total_consumers = User.objects.filter(consumer__isnull=False).count()
+        
+        # Calculate percentages for user types
+        admin_percent = (total_admins / total_users * 100) if total_users > 0 else 0
+        farmer_percent = (total_farmers / total_users * 100) if total_users > 0 else 0
+        consumer_percent = (total_consumers / total_users * 100) if total_users > 0 else 0
+        
+        # Active user counts
+        active_users = User.objects.filter(is_active=True).count()
+        active_admins = User.objects.filter(is_staff=True, is_active=True).count()
+        active_farmers = User.objects.filter(farmer__isnull=False, is_active=True).count()
+        active_consumers = User.objects.filter(consumer__isnull=False, is_active=True).count()
+        
+        # Farmer verification status
+        verified_farmers = User.objects.filter(farmer__is_verified=True).count()
+        unverified_farmers = total_farmers - verified_farmers
+        
+        # Calculate percentages for farmer verification
+        verified_farmers_percent = (verified_farmers / total_farmers * 100) if total_farmers > 0 else 0
+        unverified_farmers_percent = (unverified_farmers / total_farmers * 100) if total_farmers > 0 else 0
+        
+        # Registration statistics
+        today = timezone.now().date()
+        month_start = today.replace(day=1)
+        year_start = today.replace(month=1, day=1)
+        
+        registrations_today = User.objects.filter(date_joined__date=today).count()
+        registrations_this_month = User.objects.filter(date_joined__date__gte=month_start).count()
+        registrations_this_year = User.objects.filter(date_joined__date__gte=year_start).count()
+        
+        # Get signups by month for the last 6 months
+        six_months_ago = today - timedelta(days=180)
+        signups_by_month_data = User.objects.filter(
+            date_joined__date__gte=six_months_ago
+        ).annotate(
+            month=TruncMonth('date_joined')
+        ).values('month').annotate(
+            count=Count('id')
+        ).order_by('month')
+        
+        # Prepare chart data for the last 6 months
+        months = []
+        signups_by_month = []
+        
+        for i in range(5, -1, -1):
+            month = (today.replace(day=1) - timedelta(days=i*30)).strftime('%b %Y')
+            months.append(month)
+        
+        # Create a dictionary of month: count from the database results
+        signups_dict = {}
+        for item in signups_by_month_data:
+            month_str = item['month'].strftime('%b %Y')
+            signups_dict[month_str] = item['count']
+        
+        # Fill in the signups_by_month list with counts (0 if no data for that month)
+        for month in months:
+            signups_by_month.append(signups_dict.get(month, 0))
+        
+        # Convert to JSON for charts
+        months_json = json.dumps(months)
+        signups_json = json.dumps(signups_by_month)
+        
+    except Exception as e:
+        # Use empty values if database error
+        print(f"Error fetching user data: {str(e)}")
+        users = []
+        total_users = 0
+        total_admins = 0
+        total_farmers = 0
+        total_consumers = 0
+        admin_percent = 0
+        farmer_percent = 0
+        consumer_percent = 0
+        active_users = 0
+        active_admins = 0
+        active_farmers = 0
+        active_consumers = 0
+        verified_farmers = 0
+        unverified_farmers = 0
+        verified_farmers_percent = 0
+        unverified_farmers_percent = 0
+        registrations_today = 0
+        registrations_this_month = 0
+        registrations_this_year = 0
+        months = [month.strftime('%b %Y') for month in [
+            (today.replace(day=1) - timedelta(days=i*30)) for i in range(5, -1, -1)
+        ]]
+        signups_by_month = [0] * 6
+        months_json = json.dumps(months)
+        signups_json = json.dumps(signups_by_month)
     
     context = {
-        'admin_users': admin_users,
-        'farmer_users': farmer_users,
-        'consumer_users': consumer_users,
+        'page_title': 'User Management',
+        'users': users,
+        'total_users': total_users,
+        'total_admins': total_admins,
+        'total_farmers': total_farmers,
+        'total_consumers': total_consumers,
+        'admin_percent': admin_percent,
+        'farmer_percent': farmer_percent,
+        'consumer_percent': consumer_percent,
+        'active_users': active_users,
+        'active_admins': active_admins,
+        'active_farmers': active_farmers,
+        'active_consumers': active_consumers,
+        'verified_farmers': verified_farmers,
+        'unverified_farmers': unverified_farmers,
+        'verified_farmers_percent': verified_farmers_percent,
+        'unverified_farmers_percent': unverified_farmers_percent,
+        'registrations_today': registrations_today,
+        'registrations_this_month': registrations_this_month,
+        'registrations_this_year': registrations_this_year,
+        'months': months_json,
+        'signups_by_month': signups_json,
+        'user_type_filter': user_type_filter,
+        'status_filter': status_filter,
+        'search_query': search_query
     }
     
     return render(request, 'manage_users.html', context)
 
-@login_required(login_url='/admin-portal/login/')
+@login_required
 @user_passes_test(is_admin_or_verifier, login_url='/admin-portal/login/')
 def order_management(request):
-    # Get orders by status
-    pending_orders = Order.objects.filter(status='pending').order_by('-created_at')
-    processing_orders = Order.objects.filter(status='processing').order_by('-created_at')
-    shipped_orders = Order.objects.filter(status='shipped').order_by('-created_at')
-    delivered_orders = Order.objects.filter(status='delivered').order_by('-created_at')
-    cancelled_orders = Order.objects.filter(status='cancelled').order_by('-created_at')
+    """
+    View for admin to manage orders
+    Displays list of orders with filtering options
+    """
+    if not is_admin_or_verifier(request.user):
+        return redirect('admin_login')
+    
+    # Get status filter parameter
+    status_filter = request.GET.get('status', 'all')
+    search_query = request.GET.get('search', '')
+    
+    try:
+        # Build base queryset
+        orders_queryset = Order.objects.all().select_related(
+            'consumer', 'consumer__user'
+        ).prefetch_related(
+            'items', 'status_history'
+        )
+        
+        # Apply filters
+        if status_filter and status_filter != 'all':
+            orders_queryset = orders_queryset.filter(status=status_filter)
+            
+        if search_query:
+            orders_queryset = orders_queryset.filter(
+                Q(order_id__icontains=search_query) | 
+                Q(consumer__user__first_name__icontains=search_query) |
+                Q(consumer__user__last_name__icontains=search_query) |
+                Q(consumer__user__email__icontains=search_query)
+            )
+        
+        # Get recent orders (paginated in a real app)
+        recent_orders = orders_queryset.order_by('-created_at')[:20]
+        
+        # Calculate statistics for the dashboard cards
+        total_orders = Order.objects.count()
+        pending_orders = Order.objects.filter(status='pending').count()
+        processing_orders = Order.objects.filter(status='processing').count()
+        shipped_orders = Order.objects.filter(status='shipped').count()
+        delivered_orders = Order.objects.filter(status='delivered').count()
+        cancelled_orders = Order.objects.filter(status='cancelled').count()
+        
+        # Calculate percentages for order statuses
+        pending_percent = (pending_orders / total_orders * 100) if total_orders > 0 else 0
+        processing_percent = (processing_orders / total_orders * 100) if total_orders > 0 else 0
+        shipped_percent = (shipped_orders / total_orders * 100) if total_orders > 0 else 0
+        delivered_percent = (delivered_orders / total_orders * 100) if total_orders > 0 else 0
+        cancelled_percent = (cancelled_orders / total_orders * 100) if total_orders > 0 else 0
+        
+        # Calculate revenue statistics
+        total_revenue = Order.objects.filter(payment_status=True).aggregate(
+            Sum('total_amount')
+        )['total_amount__sum'] or 0
+        
+        # Calculate revenue by time periods
+        today = timezone.now().date()
+        month_start = today.replace(day=1)
+        year_start = today.replace(month=1, day=1)
+        
+        revenue_today = Order.objects.filter(
+            payment_status=True, 
+            created_at__date=today
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        revenue_this_month = Order.objects.filter(
+            payment_status=True, 
+            created_at__date__gte=month_start
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        revenue_this_year = Order.objects.filter(
+            payment_status=True, 
+            created_at__date__gte=year_start
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        # Calculate average order value
+        if total_orders > 0:
+            average_order_value = total_revenue / total_orders
+        else:
+            average_order_value = 0
+        
+        # Get top selling products
+        top_products = OrderItem.objects.values(
+            'product__name'
+        ).annotate(
+            total_quantity=Sum('quantity'),
+            total_sales=Sum(F('quantity') * F('price'))
+        ).order_by('-total_quantity')[:5]
+        
+        # Get orders by status for charts
+        orders_by_status = {
+            'pending': pending_orders,
+            'processing': processing_orders,
+            'shipped': shipped_orders,
+            'delivered': delivered_orders,
+            'cancelled': cancelled_orders,
+            # Add percentages
+            'pending_percent': pending_percent,
+            'processing_percent': processing_percent,
+            'shipped_percent': shipped_percent,
+            'delivered_percent': delivered_percent,
+            'cancelled_percent': cancelled_percent
+        }
+        
+        # Get orders created by date (last 7 days)
+        last_week = today - timedelta(days=7)
+        orders_by_date = Order.objects.filter(
+            created_at__date__gte=last_week
+        ).annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(
+            count=Count('id')
+        ).order_by('date')
+        
+        # Prepare chart data
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7, 0, -1)]
+        orders_by_date_dict = {item['date'].strftime('%Y-%m-%d'): item['count'] for item in orders_by_date}
+        orders_count_by_date = [orders_by_date_dict.get(date, 0) for date in dates]
+        
+        # Convert to JSON-friendly format for chart.js
+        dates_json = json.dumps(dates)
+        orders_count_json = json.dumps(orders_count_by_date)
+        
+    except Exception as e:
+        # Use empty values if database tables don't exist yet
+        print(f"Error fetching order data: {str(e)}")
+        recent_orders = []
+        total_orders = 0
+        pending_orders = 0
+        processing_orders = 0
+        shipped_orders = 0
+        delivered_orders = 0
+        cancelled_orders = 0
+        total_revenue = 0
+        revenue_today = 0
+        revenue_this_month = 0
+        revenue_this_year = 0
+        average_order_value = 0
+        top_products = []
+        orders_by_status = {
+            'pending': 0,
+            'processing': 0,
+            'shipped': 0,
+            'delivered': 0,
+            'cancelled': 0,
+            'pending_percent': 0,
+            'processing_percent': 0,
+            'shipped_percent': 0,
+            'delivered_percent': 0,
+            'cancelled_percent': 0
+        }
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7, 0, -1)]
+        orders_count_by_date = [0] * 7
+        
+        # Convert to JSON-friendly format for chart.js
+        dates_json = json.dumps(dates)
+        orders_count_json = json.dumps(orders_count_by_date)
     
     context = {
+        'page_title': 'Order Management',
+        'recent_orders': recent_orders,
+        'total_orders': total_orders,
         'pending_orders': pending_orders,
         'processing_orders': processing_orders,
         'shipped_orders': shipped_orders,
         'delivered_orders': delivered_orders,
         'cancelled_orders': cancelled_orders,
+        'total_revenue': total_revenue,
+        'revenue_today': revenue_today,
+        'revenue_this_month': revenue_this_month,
+        'revenue_this_year': revenue_this_year,
+        'average_order_value': average_order_value,
+        'top_products': top_products,
+        'orders_by_status': orders_by_status,
+        'dates': dates_json,
+        'orders_count_by_date': orders_count_json,
+        'status_filter': status_filter,
+        'search_query': search_query
     }
     
-    return render(request, 'order_management.html', context)
+    return render(request, 'admin_order_management.html', context)
 
 # Farmer Portal Views
 @login_required(login_url='/login/')
-@user_passes_test(is_farmer, login_url='/login/')
 def farmer_dashboard(request):
     """
-    Farmer dashboard view - displays overview, verification status, and recent orders
+    View for farmer dashboard
+    Displays overview of products, orders, and verification status
     """
     try:
         # Get the farmer profile
         farmer = Farmer.objects.get(user=request.user)
         
-        # Get verification status
-        verification = None
-        farmer_verified = False
-        latest_verification = FarmerVerification.objects.filter(
+        # Get the latest verification if any
+        verification = FarmerVerification.objects.filter(
             farmer=farmer
         ).order_by('-submission_date').first()
         
-        if latest_verification:
-            verification = latest_verification
-            farmer_verified = True
+        # Determine verification status 
+        verification_status = 'unverified'
+        if farmer.is_verified:
+            verification_status = 'verified'
+        elif verification:
+            verification_status = verification.status
         
-        # Get order statistics
-        total_orders = Order.objects.filter(
-            orderitem__product__farmer=farmer
-        ).distinct().count()
+        # Count products
+        total_products = Product.objects.filter(farmer=farmer).count()
+        pending_products = Product.objects.filter(farmer=farmer, status='pending').count()
+        active_products = Product.objects.filter(farmer=farmer, status='active').count()
         
-        pending_orders = Order.objects.filter(
-            orderitem__product__farmer=farmer,
-            status__in=['pending', 'processing']
-        ).distinct().count()
+        # Get recent products
+        recent_products = Product.objects.filter(farmer=farmer).order_by('-created_at')[:5]
         
-        total_sales = OrderItem.objects.filter(
-            product__farmer=farmer,
-            order__status__in=['processing', 'shipped', 'delivered']
-        ).aggregate(total=Sum('price'))['total'] or 0
-        
-        # Get recent orders
+        # Get recent orders for farmer's products
+        # Using .distinct() to get unique orders even if multiple items in an order are from this farmer
         recent_orders = Order.objects.filter(
-            orderitem__product__farmer=farmer
+            items__product__farmer=farmer
         ).distinct().order_by('-created_at')[:5]
+        
+        # Calculate total revenue from delivered orders
+        delivered_orders = Order.objects.filter(
+            items__product__farmer=farmer, 
+            status='delivered'
+        ).distinct()
+        
+        total_revenue = 0
+        for order in delivered_orders:
+            for item in order.items.filter(product__farmer=farmer):
+                total_revenue += item.price * item.quantity
         
         context = {
             'farmer': farmer,
-            'verification': verification,
-            'farmer_verified': farmer_verified,
-            'verification_status': farmer.verification_status,
-            'total_orders': total_orders,
-            'pending_orders': pending_orders,
-            'total_sales': total_sales,
-            'recent_orders': recent_orders
+            'verification_status': verification_status,
+            'total_products': total_products,
+            'pending_products': pending_products,
+            'active_products': active_products,
+            'recent_products': recent_products,
+            'recent_orders': recent_orders,
+            'total_revenue': total_revenue,
         }
         
         return render(request, 'farmer_dashboard.html', context)
         
     except Farmer.DoesNotExist:
-        # If the farmer profile doesn't exist, create one
+        # If the farmer profile doesn't exist, create one and redirect
         farmer = Farmer.objects.create(
             user=request.user,
-            verification_status='unverified'
+            is_verified=False
         )
-        context = {
-            'farmer': farmer,
-            'farmer_verified': False,
-            'verification_status': 'unverified',
-            'total_orders': 0,
-            'pending_orders': 0,
-            'total_sales': 0,
-            'recent_orders': []
-        }
-        
-        return render(request, 'farmer_dashboard.html', context)
+        return redirect('farmer_dashboard')
+    except Exception as e:
+        # Handle any other exceptions
+        messages.error(request, f"An error occurred: {str(e)}")
+        return render(request, 'farmer_dashboard.html', {'error': str(e)})
 
 @login_required(login_url='/login/')
 def farmer_verification_status(request):
     """
-    Display verification status and details for a farmer
+    View for farmer verification status page
+    Displays the verification status of the farmer
     """
     try:
         # Get the farmer profile
@@ -453,11 +919,18 @@ def farmer_verification_status(request):
                 verification=verification
             )
         
+        # Determine verification status from either the verification record or is_verified field
+        verification_status = 'unverified'
+        if farmer.is_verified:
+            verification_status = 'verified'
+        elif verification:
+            verification_status = verification.status
+        
         context = {
             'farmer': farmer,
             'verification': verification,
             'supporting_documents': supporting_documents,
-            'verification_status': farmer.verification_status,
+            'verification_status': verification_status,
             'submission_date': verification.submission_date if verification else None,
             'certification_type': verification.certification_type if verification else None,
             'certification_id': verification.certification_id if verification else None,
@@ -472,7 +945,7 @@ def farmer_verification_status(request):
         # If the farmer profile doesn't exist, create one and redirect to dashboard
         farmer = Farmer.objects.create(
             user=request.user,
-            verification_status='unverified'
+            is_verified=False
         )
         return redirect('farmer_dashboard')
 
@@ -490,7 +963,7 @@ def farmer_product_management(request):
         
         # Calculate product statistics
         total_products = products.count()
-        active_products = products.filter(status='approved').count()
+        active_products = products.filter(status='active').count()
         pending_products = products.filter(status='pending').count()
         draft_products = products.filter(status='draft').count()
         
@@ -505,7 +978,7 @@ def farmer_product_management(request):
             'pending_products': pending_products,
             'draft_products': draft_products,
             'categories': categories,
-            'verification_status': farmer.verification_status
+            'is_verified': farmer.is_verified
         }
         
         return render(request, 'farmer_product_management.html', context)
@@ -514,94 +987,100 @@ def farmer_product_management(request):
         # If the farmer profile doesn't exist, create one and redirect
         farmer = Farmer.objects.create(
             user=request.user,
-            verification_status='unverified'
+            is_verified=False
         )
         return redirect('farmer_dashboard')
 
 @login_required(login_url='/login/')
-def farmer_orders(request):
+def add_product(request):
     """
-    Display and manage orders for a farmer
+    View for adding a new product as a farmer
+    Displays the add product form
     """
+    # Ensure user is a farmer
+    if not is_farmer(request.user):
+        return redirect('login')
+    
     try:
-        # Get the farmer profile
+        # Get farmer profile
         farmer = Farmer.objects.get(user=request.user)
         
-        # Get all orders for this farmer's products
-        orders = Order.objects.filter(
-            orderitem__product__farmer=farmer
-        ).distinct().order_by('-created_at')
-        
-        # Apply filters if provided
-        status_filter = request.GET.get('status')
-        if status_filter and status_filter != 'all':
-            orders = orders.filter(status=status_filter)
-            
-        date_range = request.GET.get('date_range')
-        if date_range:
-            today = timezone.now().date()
-            if date_range == 'today':
-                orders = orders.filter(created_at__date=today)
-            elif date_range == 'week':
-                week_ago = today - timedelta(days=7)
-                orders = orders.filter(created_at__date__gte=week_ago)
-            elif date_range == 'month':
-                month_ago = today - timedelta(days=30)
-                orders = orders.filter(created_at__date__gte=month_ago)
-            elif date_range == 'year':
-                year_ago = today - timedelta(days=365)
-                orders = orders.filter(created_at__date__gte=year_ago)
-                
-        search_query = request.GET.get('search')
-        if search_query:
-            orders = orders.filter(
-                Q(order_id__icontains=search_query) | 
-                Q(consumer__user__first_name__icontains=search_query) |
-                Q(consumer__user__last_name__icontains=search_query)
-            )
-        
-        # Calculate order statistics
-        total_orders = Order.objects.filter(
-            orderitem__product__farmer=farmer
-        ).distinct().count()
-        
-        pending_orders = Order.objects.filter(
-            orderitem__product__farmer=farmer,
-            status__in=['pending', 'processing']
-        ).distinct().count()
-        
-        # Calculate total revenue from completed orders
-        total_revenue = OrderItem.objects.filter(
-            product__farmer=farmer,
-            order__status__in=['processing', 'shipped', 'delivered']
-        ).aggregate(total=Sum('price'))['total'] or 0
-        
-        # Calculate average order value
-        avg_order_value = 0
-        if total_orders > 0:
-            avg_order_value = total_revenue / total_orders
+        # Get all categories for the dropdown
+        categories = Category.objects.all()
         
         context = {
             'farmer': farmer,
-            'orders': orders,
-            'total_orders': total_orders,
-            'pending_orders': pending_orders,
-            'total_revenue': total_revenue,
-            'avg_order_value': avg_order_value,
-            'status_filter': status_filter,
-            'date_range': date_range,
-            'search_query': search_query
+            'categories': categories,
+            'is_verified': farmer.is_verified
         }
         
-        return render(request, 'farmer_orders.html', context)
+        return render(request, 'add_product.html', context)
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('farmer_product_management')
+
+@login_required(login_url='/login/')
+def farmer_orders(request):
+    """
+    View for farmer orders page
+    Displays orders for the farmer's products with filtering options
+    """
+    # Ensure user is a farmer
+    if not is_farmer(request.user):
+        return redirect('login')
+    
+    try:
+        # Get farmer profile
+        farmer = Farmer.objects.get(user=request.user)
         
-    except Farmer.DoesNotExist:
-        # If the farmer profile doesn't exist, create one and redirect
-        farmer = Farmer.objects.create(
-            user=request.user,
-            verification_status='unverified'
-        )
-        return redirect('farmer_dashboard')
+        # Get order items for this farmer's products
+        order_items = OrderItem.objects.filter(
+            product__farmer=farmer
+        ).select_related('order', 'product')
+        
+        # Extract unique orders
+        orders_dict = {}
+        for item in order_items:
+            if item.order.id not in orders_dict:
+                # Initialize order with empty items list
+                orders_dict[item.order.id] = {
+                    'order': item.order,
+                    'items': [],
+                    'total_quantity': 0
+                }
+            # Add this item to the order
+            orders_dict[item.order.id]['items'].append(item)
+            orders_dict[item.order.id]['total_quantity'] += item.quantity
+        
+        # Convert to list and sort by created_at
+        orders = list(orders_dict.values())
+        orders.sort(key=lambda x: x['order'].created_at, reverse=True)
+        
+        # Calculate statistics
+        total_orders = len(orders)
+        pending_orders = sum(1 for o in orders if o['order'].status == 'pending')
+        total_revenue = sum(item.price * item.quantity for o in orders for item in o['items'])
+        avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+        
+    except Exception as e:
+        # Use empty values if database tables don't exist yet
+        farmer = None
+        orders = []
+        total_orders = 0
+        pending_orders = 0
+        total_revenue = 0
+        avg_order_value = 0
+    
+    context = {
+        'farmer': farmer,
+        'orders': orders,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'total_revenue': total_revenue,
+        'avg_order_value': avg_order_value
+    }
+    
+    return render(request, 'farmer_orders.html', context)
 
 @login_required(login_url='/login/')
 def submit_verification(request):
@@ -636,9 +1115,7 @@ def submit_verification(request):
                     )
                     supporting_doc.save()
             
-            # Update farmer verification status
-            farmer.verification_status = 'pending'
-            farmer.save()
+            # No need to update farmer status - the is_verified field will be updated upon approval
             
             messages.success(request, "Your verification documents have been submitted successfully and are under review.")
             return redirect('farmer_verification_status')
@@ -828,6 +1305,64 @@ def marketplace(request):
         context = {}
         
     return render(request, 'marketplace.html', context)
+
+def init_admin(request):
+    """
+    Initial setup view for creating the first admin user
+    Can only be used when no admin users exist
+    """
+    # Check if any admin users already exist
+    admin_group, created = Group.objects.get_or_create(name='Admin')
+    verifier_group, created = Group.objects.get_or_create(name='Verifier')
+    
+    existing_admins = User.objects.filter(groups=admin_group).exists()
+    
+    if existing_admins and not request.user.is_superuser:
+        messages.error(request, 'Admin users already exist. This setup can only be performed once.')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Validate input
+        if not all([username, email, password, confirm_password]):
+            messages.error(request, 'All fields are required.')
+            return render(request, 'init_admin.html')
+        
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'init_admin.html')
+        
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists.')
+            return render(request, 'init_admin.html')
+        
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists.')
+            return render(request, 'init_admin.html')
+        
+        # Create the user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            is_staff=True
+        )
+        
+        # Add to Admin group
+        user.groups.add(admin_group)
+        
+        # Also create a verifier group if it doesn't exist
+        verifier_group, created = Group.objects.get_or_create(name='Verifier')
+        
+        messages.success(request, f'Admin user {username} created successfully. You can now log in.')
+        return redirect('admin_login')
+    
+    return render(request, 'init_admin.html')
 
 
 
