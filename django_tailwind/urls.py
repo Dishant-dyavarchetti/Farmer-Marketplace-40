@@ -62,6 +62,13 @@ urlpatterns = [
     # API endpoints for AJAX actions
     path('api/update-order-status/', views.update_order_status, name='update_order_status'),
     path('api/delete-product/', views.delete_product, name='delete_product'),
+    
+    # Shopping Cart
+    path('cart/', views.view_cart, name='view_cart'),
+    path('api/add-to-cart/', views.add_to_cart, name='add_to_cart'),
+    path('api/update-cart-item/', views.update_cart_item, name='update_cart_item'),
+    path('api/remove-from-cart/', views.remove_from_cart, name='remove_from_cart'),
+    
     path('marketplace/', views.marketplace, name='marketplace'),
     path('marketplace/product/<int:product_id>/', views.marketplace_product, name='marketplace_product'),
     

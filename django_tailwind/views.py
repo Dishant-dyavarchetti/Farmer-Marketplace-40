@@ -10,7 +10,7 @@ from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
 from accounts.models import (
     Farmer, Consumer, FarmerVerification, SupportingDocument,
-    Category, Product, Order, OrderItem, OrderStatusHistory
+    Category, Product, Order, OrderItem, OrderStatusHistory, Cart, CartItem
 )
 import os
 from datetime import timedelta
@@ -18,7 +18,21 @@ import json
 from qr.utils import generate_qr_code
 
 def home(request):
-    return render(request, 'homepage.html')
+    # Get user's cart if authenticated
+    cart = None
+    if request.user.is_authenticated:
+        try:
+            consumer = Consumer.objects.get(user=request.user)
+            cart, created = Cart.objects.get_or_create(consumer=consumer)
+        except Consumer.DoesNotExist:
+            # User is not a consumer, so no cart
+            pass
+    
+    context = {
+        'cart': cart
+    }
+    
+    return render(request, 'homepage.html', context)
 
 def login(request):
     if request.method == 'POST':
@@ -1400,46 +1414,6 @@ def update_order_status(request):
         'message': "Invalid request method."
     })
 
-def marketplace(request):
-    """
-    View for marketplace homepage that displays categories and featured products
-    """
-    # Get featured products
-    try:
-        featured_products = Product.objects.filter(status='active').order_by('-created_at')[:8]
-        # Get all categories
-        categories = Category.objects.all()[:8]
-        
-        context = {
-            'featured_products': featured_products,
-            'categories': categories,
-        }
-    except:
-        # Handle case where models might not be loaded yet
-        context = {}
-        
-    return render(request, 'marketplace.html', context)
-
-def marketplace_product(request, product_id):
-    """
-    View for displaying a single product in the marketplace
-    """
-    try:
-        product = get_object_or_404(Product, id=product_id, status='active')
-        related_products = Product.objects.filter(
-            category=product.category, 
-            status='active'
-        ).exclude(id=product.id).order_by('-created_at')[:4]
-        
-        context = {
-            'product': product,
-            'related_products': related_products,
-        }
-    except:
-        context = {'error': 'Product not found'}
-        
-    return render(request, 'marketplace_product.html', context)
-
 def init_admin(request):
     """
     Initial setup view for creating the first admin user
@@ -1498,12 +1472,267 @@ def init_admin(request):
     
     return render(request, 'init_admin.html')
 
+def marketplace(request):
+    """
+    View for marketplace homepage that displays categories and featured products
+    """
+    # Get filter parameters
+    category = request.GET.get('category')
+    is_organic = request.GET.get('organic', None)
+    price_min = request.GET.get('price_min')
+    price_max = request.GET.get('price_max')
+    farm_location = request.GET.get('location')
+    status = request.GET.get('status')
+    
+    # Start with all products
+    products = Product.objects.all()
+    
+    # Apply filters
+    if category:
+        products = products.filter(category__iexact=category)
+    
+    if is_organic is not None:
+        is_organic_bool = is_organic.lower() == 'true'
+        products = products.filter(is_organic=is_organic_bool)
+    
+    if price_min:
+        products = products.filter(price__gte=float(price_min))
+    
+    if price_max:
+        products = products.filter(price__lte=float(price_max))
+    
+    if farm_location:
+        products = products.filter(farmer__farm_location__icontains=farm_location)
+    
+    if status:
+        products = products.filter(status=status)
+    else:
+        # Default to showing only active products
+        products = products.filter(status='active')
+    
+    # Get all categories for filter options
+    categories = Product.objects.values_list('category', flat=True).distinct()
+    
+    # Get all locations for filter options
+    locations = Product.objects.values_list('farmer__farm_location', flat=True).distinct()
+    
+    # Get featured products (limit to 6)
+    featured_products = products.order_by('-created_at')[:6]
+    
+    # Get user's cart if authenticated
+    cart = None
+    if request.user.is_authenticated:
+        try:
+            consumer = Consumer.objects.get(user=request.user)
+            cart, created = Cart.objects.get_or_create(consumer=consumer)
+        except Consumer.DoesNotExist:
+            # User is not a consumer, so no cart
+            pass
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'locations': locations,
+        'featured_products': featured_products,
+        'cart': cart,
+    }
+    
+    return render(request, 'marketplace.html', context)
 
+def marketplace_product(request, product_id):
+    """
+    View for displaying a single product in the marketplace
+    """
+    try:
+        # Get product and check if it's active
+        product = get_object_or_404(Product, id=product_id, status='active')
+        
+        # Get related products from same category (excluding current product)
+        related_products = Product.objects.filter(
+            category=product.category, 
+            status='active'
+        ).exclude(id=product.id)[:4]
+        
+        # Get user's cart if authenticated
+        cart = None
+        if request.user.is_authenticated:
+            try:
+                consumer = Consumer.objects.get(user=request.user)
+                cart, created = Cart.objects.get_or_create(consumer=consumer)
+            except Consumer.DoesNotExist:
+                # User is not a consumer, so no cart
+                pass
+        
+        context = {
+            'product': product,
+            'related_products': related_products,
+            'cart': cart,
+        }
+        
+        return render(request, 'marketplace_product.html', context)
+    except Product.DoesNotExist:
+        # Handle case where product is not found
+        return render(request, 'marketplace_product.html', {
+            'product_not_found': True,
+        })
 
+@login_required(login_url='/login/')
+def view_cart(request):
+    """
+    View for displaying the user's shopping cart
+    """
+    try:
+        # Get the consumer's cart or create a new one
+        consumer = Consumer.objects.get(user=request.user)
+        cart, created = Cart.objects.get_or_create(consumer=consumer)
+        
+        # Get all items in the cart
+        cart_items = cart.cartitem_set.all().select_related('product')
+        
+        context = {
+            'cart': cart,
+            'cart_items': cart_items,
+        }
+        
+        return render(request, 'cart.html', context)
+    except Consumer.DoesNotExist:
+        messages.error(request, "You need a consumer account to access the cart")
+        return redirect('marketplace')
+    except Exception as e:
+        messages.error(request, f"Error accessing cart: {str(e)}")
+        return redirect('marketplace')
 
+@login_required(login_url='/login/')
+def add_to_cart(request):
+    """
+    View for adding a product to the cart (AJAX)
+    """
+    if request.method == 'POST':
+        try:
+            product_id = request.POST.get('product_id')
+            quantity = int(request.POST.get('quantity', 1))
+            
+            if not product_id:
+                return JsonResponse({'status': 'error', 'message': 'Product ID is required'})
+            
+            # Get the product
+            product = get_object_or_404(Product, id=product_id, status='active')
+            
+            # Check if user is a consumer
+            try:
+                consumer = Consumer.objects.get(user=request.user)
+            except Consumer.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': 'You need a consumer account to add items to cart',
+                    'redirect_url': '/login/?next=/marketplace/'
+                })
+            
+            # Get the consumer's cart or create a new one
+            cart, created = Cart.objects.get_or_create(consumer=consumer)
+            
+            # Check if the product is already in the cart
+            cart_item, item_created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product,
+                defaults={'quantity': quantity}
+            )
+            
+            # If the item already existed, update the quantity
+            if not item_created:
+                cart_item.quantity += quantity
+                cart_item.save()
+            
+            # Return success response
+            return JsonResponse({
+                'status': 'success',
+                'message': f"{product.name} added to cart",
+                'cart_items': cart.total_items
+            })
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+@login_required(login_url='/login/')
+def update_cart_item(request):
+    """
+    View for updating a cart item quantity (AJAX)
+    """
+    if request.method == 'POST':
+        try:
+            cart_item_id = request.POST.get('cart_item_id')
+            quantity = int(request.POST.get('quantity', 1))
+            
+            if not cart_item_id:
+                return JsonResponse({'status': 'error', 'message': 'Cart item ID is required'})
+            
+            # Get the cart item
+            cart_item = get_object_or_404(CartItem, id=cart_item_id)
+            
+            # Ensure the cart belongs to the current user
+            if cart_item.cart.consumer.user != request.user:
+                return JsonResponse({'status': 'error', 'message': 'Unauthorized'})
+            
+            if quantity <= 0:
+                # Remove the item from the cart
+                cart_item.delete()
+                message = "Item removed from cart"
+            else:
+                # Update the quantity
+                cart_item.quantity = quantity
+                cart_item.save()
+                message = "Cart updated"
+            
+            # Return updated cart information
+            return JsonResponse({
+                'status': 'success',
+                'message': message,
+                'cart_items': cart_item.cart.total_items,
+                'cart_total': cart_item.cart.total_price
+            })
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
-
-
-
-
+@login_required(login_url='/login/')
+def remove_from_cart(request):
+    """
+    View for removing a product from the cart (AJAX)
+    """
+    if request.method == 'POST':
+        try:
+            cart_item_id = request.POST.get('cart_item_id')
+            
+            if not cart_item_id:
+                return JsonResponse({'status': 'error', 'message': 'Cart item ID is required'})
+            
+            # Get the cart item
+            cart_item = get_object_or_404(CartItem, id=cart_item_id)
+            
+            # Ensure the cart belongs to the current user
+            if cart_item.cart.consumer.user != request.user:
+                return JsonResponse({'status': 'error', 'message': 'Unauthorized'})
+            
+            # Store cart for total calculation
+            cart = cart_item.cart
+            
+            # Remove the item from the cart
+            product_name = cart_item.product.name
+            cart_item.delete()
+            
+            # Return success response
+            return JsonResponse({
+                'status': 'success',
+                'message': f"{product_name} removed from cart",
+                'cart_items': cart.total_items,
+                'cart_total': cart.total_price
+            })
+            
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

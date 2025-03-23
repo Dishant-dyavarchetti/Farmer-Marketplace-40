@@ -168,3 +168,37 @@ class OrderStatusHistory(models.Model):
     class Meta:
         verbose_name_plural = 'Order status histories'
         ordering = ['-created_at']
+
+# Cart Models
+class Cart(models.Model):
+    consumer = models.ForeignKey('Consumer', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def total_price(self):
+        """Calculate the total price of all items in the cart"""
+        return sum(item.total_price for item in self.cartitem_set.all())
+    
+    @property
+    def total_items(self):
+        """Calculate the total number of items in the cart"""
+        return sum(item.quantity for item in self.cartitem_set.all())
+    
+    def __str__(self):
+        return f"Cart #{self.id} - {self.consumer.user.username}"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def total_price(self):
+        """Calculate the total price for this cart item"""
+        return self.product.price * self.quantity
+    
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"

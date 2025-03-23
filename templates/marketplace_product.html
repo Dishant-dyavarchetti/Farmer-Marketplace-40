@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} - NaturalFarm Market</title>
+    <title>{{ product.name }} - MadhyaMukt</title>
     {% load static %}
     {% load tailwind_tags %}
     {% tailwind_css %}
@@ -23,7 +23,7 @@
                 <!-- Logo and Site Name -->
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-leaf text-2xl"></i>
-                    <span class="text-2xl md:text-3xl font-bold tracking-tight">NaturalFarm Market</span>
+                    <span class="text-2xl md:text-3xl font-bold tracking-tight">MadhyaMukt</span>
                 </div>
                 
                 <!-- Navigation Links -->
@@ -150,10 +150,16 @@
                     </div>
                     {% endif %}
                     
-                    <div class="mt-6">
-                        <a href="#" class="inline-block w-full py-3 px-6 bg-emerald-600 text-white text-center font-medium rounded-md hover:bg-emerald-700 transition">
+                    <!-- Product Actions -->
+                    <div class="mt-8 flex flex-col sm:flex-row items-center gap-4">
+                        <button id="addToCartBtn" data-product-id="{{ product.id }}" class="px-8 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center justify-center w-full sm:w-auto">
                             <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+                        </button>
+                        {% if product.qr_code %}
+                        <a href="{{ product.qr_code.url }}" download class="px-8 py-3 bg-white border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition flex items-center justify-center w-full sm:w-auto">
+                            <i class="fas fa-qrcode mr-2"></i> Download QR Code
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -199,17 +205,82 @@
     <footer class="bg-emerald-900 text-white py-6 mt-8">
         <div class="container mx-auto px-4">
             <div class="text-center">
-                <p>&copy; 2023 NaturalFarm Market. All rights reserved.</p>
+                <p>&copy; 2023 MadhyaMukt. All rights reserved.</p>
                 <p class="mt-2 text-emerald-200">Supporting sustainable farming and organic products.</p>
             </div>
         </div>
     </footer>
     
+    <!-- Toast Notification (hidden by default) -->
+    <div id="toast" class="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50"></div>
+
     <script>
-        // Mobile Menu Toggle
-        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
             const mobileMenu = document.getElementById('mobileMenu');
-            mobileMenu.classList.toggle('hidden');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Add to cart functionality
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            
+            // Toast notification function
+            function showToast(message, duration = 3000) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.classList.add('opacity-100');
+                
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                }, duration);
+            }
+            
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    
+                    fetch('{% url "add_to_cart" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `product_id=${productId}&quantity=1`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Update cart counter if it exists
+                            const cartCounter = document.getElementById('cartCounter');
+                            if (cartCounter) {
+                                cartCounter.textContent = data.cart_items;
+                            }
+                            
+                            // Show success message
+                            showToast(data.message);
+                        } else {
+                            // Show error message
+                            showToast(data.message || 'An error occurred');
+                            
+                            // If not authenticated, redirect to login
+                            if (data.redirect_url) {
+                                setTimeout(() => {
+                                    window.location.href = data.redirect_url;
+                                }, 1500);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding to cart:', error);
+                        showToast('Failed to add item to cart');
+                    });
+                });
+            }
         });
     </script>
 </body>
