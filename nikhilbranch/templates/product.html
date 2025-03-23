@@ -81,6 +81,19 @@
                         <div class="flex items-center space-x-4">
                             <span class="text-2xl font-bold text-green-600">₹${data.price}/KG</span>
                         </div>
+                        
+                        ${data.qr_code_url ? 
+                            `<div class="mt-6 pt-6 border-t border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-medium">Product QR Code</h3>
+                                        <p class="text-sm text-gray-500">Scan this code to access product details</p>
+                                    </div>
+                                    <img src="${data.qr_code_url}" alt="QR Code" class="h-32 w-32 border p-1 rounded">
+                                </div>
+                            </div>` : ''
+                        }
+                        
                         <div class="flex space-x-2 mt-4">
                             <a href="/form/edit_product/${productId}/" class="flex-1 py-2 text-center text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition">
                                 Edit Product

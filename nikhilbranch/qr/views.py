@@ -14,6 +14,7 @@ def product_details(request, product_id):
         "description": product.description,
         "category": product.category.name,
         "image_url": product.image.url if product.image else None,
+        "qr_code_url": product.qr_code.url if product.qr_code else None,
     }
     return JsonResponse(data)   
 

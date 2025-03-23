@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from qr.models import Product, Category
 from django.contrib import messages
+from qr.utils import generate_qr_code
+from django.conf import settings
 
 # Create your views here.
 
@@ -34,8 +36,22 @@ def add_product(request):
             if 'image' in request.FILES:
                 product.image = request.FILES['image']
                 
-            # Save product
+            # Save product to get an ID
             product.save()
+            
+            # Generate QR code for the product
+            try:
+                # Get the base URL from settings or use a default
+                base_url = getattr(settings, 'BASE_URL', request.build_absolute_uri('/').rstrip('/'))
+                
+                # Generate the QR code
+                qr_code = generate_qr_code(product.id, base_url)
+                
+                # Save the QR code to the product
+                product.qr_code.save(f"qr_code_{product.id}.png", qr_code, save=True)
+            except Exception as e:
+                # Log the error but don't prevent product creation
+                print(f"Error generating QR code: {str(e)}")
             
             messages.success(request, 'Product added successfully!')
             return redirect('forms')
@@ -76,6 +92,21 @@ def edit_product(request, product_id):
             # Save updated product
             product.save()
             
+            # Regenerate QR code if it doesn't exist
+            if not product.qr_code:
+                try:
+                    # Get the base URL from settings or use a default
+                    base_url = getattr(settings, 'BASE_URL', request.build_absolute_uri('/').rstrip('/'))
+                    
+                    # Generate the QR code
+                    qr_code = generate_qr_code(product.id, base_url)
+                    
+                    # Save the QR code to the product
+                    product.qr_code.save(f"qr_code_{product.id}.png", qr_code, save=True)
+                except Exception as e:
+                    # Log the error but don't prevent product update
+                    print(f"Error generating QR code: {str(e)}")
+            
             messages.success(request, 'Product updated successfully!')
             return redirect('product_list')
         except Exception as e:
@@ -86,3 +117,24 @@ def edit_product(request, product_id):
         'product': product,
         'categories': categories
     })
+
+def delete_product(request, product_id):
+    """View to delete a product"""
+    # Get the product or return 404 if not found
+    product = get_object_or_404(Product, id=product_id)
+    
+    try:
+        # Get the product name before deletion for the success message
+        product_name = product.name
+        
+        # Delete the product
+        product.delete()
+        
+        # Show success message
+        messages.success(request, f'Product "{product_name}" has been deleted successfully!')
+    except Exception as e:
+        # Show error message if deletion fails
+        messages.error(request, f'Error deleting product: {str(e)}')
+    
+    # Redirect to the product list page
+    return redirect('product_list')

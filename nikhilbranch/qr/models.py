@@ -26,6 +26,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     farmer_name = models.CharField(max_length=255, null=True, blank=True)
+    qr_code = models.ImageField(upload_to='product_qrcodes/', null=True, blank=True)
 
     def __str__(self):  # Fixed: Double underscores
         return self.name
