@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from qr.models import Product, Category
 import os
 from django.conf import settings
@@ -33,6 +33,22 @@ def marketplace(request):
     }
     
     return render(request, 'marketplace.html', context)
+
+def marketplace_product(request, product_id):
+    """View for displaying the detailed marketplace product page"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Get related products (same category, excluding current product)
+    related_products = []
+    if product.category:
+        related_products = Product.objects.filter(category=product.category).exclude(id=product_id)[:4]
+    
+    context = {
+        'product': product,
+        'related_products': related_products
+    }
+    
+    return render(request, 'marketplace_product.html', context)
 
 
 

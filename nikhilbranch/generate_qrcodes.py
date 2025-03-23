@@ -12,7 +12,6 @@ def generate_qrcodes_for_all_products():
     """Generate QR codes for all products that don't have one yet"""
     products = Product.objects.filter(qr_code='')
     total = products.count()
-    
     print(f"Found {total} products without QR codes")
     
     for index, product in enumerate(products, 1):

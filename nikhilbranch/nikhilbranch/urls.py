@@ -25,6 +25,8 @@ urlpatterns = [
     path('qr/', include('qr.urls')),
     path('form/', include('form.urls')),
     path('', views.marketplace, name='marketplace'),
+    path('marketplace/', views.marketplace, name='marketplace_home'),
+    path('marketplace/product/<int:product_id>/', views.marketplace_product, name='marketplace_product'),
 ]
 
 # Serve media files in development
