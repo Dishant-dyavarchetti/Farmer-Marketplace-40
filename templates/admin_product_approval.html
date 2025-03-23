@@ -1,0 +1,221 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Product Approval - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Product Approval</h1>
+    
+    <!-- Filter Options -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">Status:</span>
+                <a href="?status=all" class="px-3 py-1 rounded-full bg-gray-200 text-gray-800 text-sm">
+                    All <span class="ml-1 bg-gray-700 text-white rounded-full text-xs px-1.5">{{ all_products_count }}</span>
+                </a>
+                <a href="?status=pending" class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm">
+                    Pending <span class="ml-1 bg-yellow-700 text-white rounded-full text-xs px-1.5">{{ pending_count }}</span>
+                </a>
+                <a href="?status=active" class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">
+                    Active <span class="ml-1 bg-green-700 text-white rounded-full text-xs px-1.5">{{ approved_count }}</span>
+                </a>
+                <a href="?status=rejected" class="px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm">
+                    Rejected <span class="ml-1 bg-red-700 text-white rounded-full text-xs px-1.5">{{ rejected_count }}</span>
+                </a>
+            </div>
+            <div class="ml-auto">
+                <form action="" method="get" class="flex items-center">
+                    <input type="text" name="search" placeholder="Search products..." class="border rounded-l-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-r-md hover:bg-emerald-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Products Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for product in pending_products %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-emerald-100 rounded flex items-center justify-center text-emerald-500">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-10 w-10 object-cover rounded">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                                    <div class="text-xs text-gray-500">{{ product.category.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ product.farmer.user.get_full_name }}</div>
+                            <div class="text-xs text-gray-500">
+                                <span class="text-sm text-gray-600">Farmer:</span>
+                                <span class="font-medium">{{ product.farmer.user.get_full_name }}</span>
+                                {% if product.farmer.is_verified %}
+                                <span class="ml-2 px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full">Verified</span>
+                                {% else %}
+                                <span class="ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">Not Verified</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">₹{{ product.price }}</div>
+                            <div class="text-xs text-gray-500">per {{ product.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ product.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">Status</div>
+                            {% if product.status == 'pending' %}
+                            <div><span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pending Review</span></div>
+                            {% elif product.status == 'active' %}
+                            <div><span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Active</span></div>
+                            {% elif product.status == 'rejected' %}
+                            <div><span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Rejected</span></div>
+                            {% elif product.status == 'draft' %}
+                            <div><span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Draft</span></div>
+                            {% elif product.status == 'out_of_stock' %}
+                            <div><span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Out of Stock</span></div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'review_product' product.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                View
+                            </a>
+                            <form method="POST" action="{% url 'review_product' product.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" name="approve" class="text-green-600 hover:text-green-900 mr-3">
+                                    Approve
+                                </button>
+                            </form>
+                            <button onclick="showRejectForm({{ product.id }})" class="text-red-600 hover:text-red-900">
+                                Reject
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No products found matching the criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">1</span> to <span class="font-medium">{{ pending_products|length }}</span> of <span class="font-medium">{{ pending_count }}</span> results
+        </div>
+        <div class="flex space-x-2">
+            <a href="#" class="px-3 py-1 border rounded hover:bg-gray-50">Previous</a>
+            <a href="#" class="px-3 py-1 border rounded bg-emerald-600 text-white">1</a>
+            <a href="#" class="px-3 py-1 border rounded hover:bg-gray-50">Next</a>
+        </div>
+    </div>
+    
+    <!-- Product Detail Modal (hidden by default) -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-3xl w-full max-h-screen overflow-y-auto">
+            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Product Details</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6" id="productModalContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-4">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
+                    Close
+                </button>
+                <button id="modalApproveBtn" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                    Approve Product
+                </button>
+                <button id="modalRejectBtn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                    Reject Product
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rejection Form Modal (hidden by default) -->
+    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-md w-full">
+            <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Reject Product</h3>
+                <button onclick="closeRejectModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="rejectForm" method="POST" action="" class="p-6">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for rejection:</label>
+                    <textarea id="rejection_reason" name="rejection_reason" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" required></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeRejectModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" name="reject" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        Reject Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- JavaScript for modal functionality -->
+    <script>
+        // Current product ID for modal actions
+        let currentProductId = null;
+        
+        function viewProduct(productId) {
+            window.location.href = "{% url 'review_product' 0 %}".replace('0', productId);
+        }
+        
+        function showRejectForm(productId) {
+            currentProductId = productId;
+            document.getElementById('rejectForm').action = "{% url 'review_product' 0 %}".replace('0', productId);
+            document.getElementById('rejectModal').classList.remove('hidden');
+        }
+        
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.add('hidden');
+            document.getElementById('rejection_reason').value = '';
+        }
+        
+        function closeModal() {
+            document.getElementById('productModal').classList.add('hidden');
+            currentProductId = null;
+        }
+    </script>
+</div>
+{% endblock %} 

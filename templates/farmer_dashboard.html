@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Farmer Dashboard - NaturalFarm Market{% endblock %}
+
+{% block content %}
+<div class="bg-amber-50 min-h-screen">
+    <!-- Farmer Dashboard Navigation -->
+    <nav class="bg-emerald-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-2xl font-bold tracking-tight">NaturalFarm Market</a>
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="{% url 'farmer_dashboard' %}" class="px-3 py-2 rounded-md text-white bg-emerald-700">Dashboard</a>
+                        <a href="{% url 'my_products' %}" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">My Products</a>
+                        <a href="{% url 'farmer_orders' %}" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">Orders</a>
+                        <a href="#" class="px-3 py-2 rounded-md text-emerald-200 hover:bg-emerald-700 hover:text-white">Analytics</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-emerald-200">Welcome, {{ request.user.first_name }}!</span>
+                    <div class="relative">
+                        <button id="profile-menu-button" class="flex items-center text-sm focus:outline-none">
+                            <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center">
+                                {% if farmer.profile_picture %}
+                                <img src="{{ farmer.profile_picture.url }}" alt="Profile" class="h-8 w-8 rounded-full">
+                                {% else %}
+                                <span class="text-white font-semibold">{{ request.user.first_name|first }}{{ request.user.last_name|first }}</span>
+                                {% endif %}
+                            </div>
+                        </button>
+                    </div>
+                    <a href="{% url 'logout' %}" class="px-3 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 text-sm">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-emerald-800 mb-4 md:mb-0">Farmer Dashboard</h1>
+            <div class="flex space-x-4">
+                <a href="/add_product" class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-700 font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add New Product
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-4 mb-4 {% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %}" role="alert">
+                <p class="font-medium">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Verification Status Banner -->
+        {% if not farmer.is_verified %}
+        <div class="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-lg font-medium">
+                        {% if verification_status == 'not_submitted' %}
+                        Your farm is not verified yet. Complete verification to start selling products.
+                        {% elif verification_status == 'pending' %}
+                        Your verification is currently under review. We'll notify you once it's approved.
+                        {% elif verification_status == 'rejected' %}
+                        Your verification was rejected. Please review the feedback and resubmit.
+                        {% endif %}
+                    </p>
+                    <div class="mt-3">
+                        {% if verification_status == 'not_submitted' %}
+                        <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                            Start Verification Process
+                        </a>
+                        {% elif verification_status == 'rejected' %}
+                        <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                            Resubmit Verification
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-emerald-100 text-emerald-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-500 text-sm">Total Products</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ products_count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-amber-100 text-amber-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-500 text-sm">Pending Products</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ pending_products }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-500 text-sm">Recent Orders</p>
+                        <p class="text-2xl font-semibold text-gray-800">{{ recent_orders|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-500 text-sm">Total Revenue</p>
+                        <p class="text-2xl font-semibold text-gray-800">₹{{ total_revenue|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products and Orders Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Products List -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-gray-800">Recent Products</h2>
+                        <a href="{% url 'farmer_product_management' %}" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">View All</a>
+                    </div>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% if recent_products %}
+                        {% for product in recent_products %}
+                        <li class="p-4 hover:bg-gray-50">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-md bg-gray-200 overflow-hidden">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover">
+                                    {% else %}
+                                    <div class="h-full w-full flex items-center justify-center text-gray-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+                                    <p class="text-sm text-gray-500">₹{{ product.price }} per {{ product.unit }}</p>
+                                </div>
+                                <div>
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if product.status == 'active' %}bg-green-100 text-green-800
+                                    {% elif product.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif product.status == 'draft' %}bg-gray-100 text-gray-800
+                                    {% elif product.status == 'rejected' %}bg-red-100 text-red-800
+                                    {% elif product.status == 'out_of_stock' %}bg-blue-100 text-blue-800
+                                    {% endif %}">
+                                        {{ product.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="p-6 text-center text-gray-500">
+                            <p>You haven't added any products yet.</p>
+                            <a href="{% url 'add_product' %}" class="inline-block mt-2 text-emerald-600 hover:text-emerald-800">+ Add your first product</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Orders List -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-gray-800">Recent Orders</h2>
+                        <a href="#" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium">View All</a>
+                    </div>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                        <li class="p-4 hover:bg-gray-50">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-md bg-emerald-100 text-emerald-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">Order #{{ order.order_id }}</p>
+                                    <p class="text-sm text-gray-500">{{ order.created_at|date:"d M Y, H:i" }}</p>
+                                </div>
+                                <div>
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                    {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800
+                                    {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                    {% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="p-6 text-center text-gray-500">
+                            <p>You don't have any orders yet.</p>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

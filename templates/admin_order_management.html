@@ -1,0 +1,645 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Order Management - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Order Management</h1>
+    
+    <!-- Statistics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Total Orders Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Total Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ total_orders }}</h3>
+                </div>
+                <div class="p-3 bg-amber-100 text-amber-500 rounded-full">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Pending Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ pending_orders }}</h3>
+                </div>
+                <div class="p-3 bg-yellow-100 text-yellow-500 rounded-full">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Total Revenue</p>
+                    <h3 class="text-2xl font-bold text-gray-800">₹{{ total_revenue|floatformat:2 }}</h3>
+                </div>
+                <div class="p-3 bg-green-100 text-green-500 rounded-full">
+                    <i class="fas fa-rupee-sign text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Order Value Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Average Order</p>
+                    <h3 class="text-2xl font-bold text-gray-800">₹{{ average_order_value|floatformat:2 }}</h3>
+                </div>
+                <div class="p-3 bg-blue-100 text-blue-500 rounded-full">
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Statistics -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Revenue by Time Period -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue Breakdown</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                    <span class="text-sm text-gray-600">Today:</span>
+                    <span class="text-sm font-medium">₹{{ revenue_today|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                    <span class="text-sm text-gray-600">This Month:</span>
+                    <span class="text-sm font-medium">₹{{ revenue_this_month|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center pb-2 border-b border-gray-200">
+                    <span class="text-sm text-gray-600">This Year:</span>
+                    <span class="text-sm font-medium">₹{{ revenue_this_year|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">All Time:</span>
+                    <span class="text-sm font-medium">₹{{ total_revenue|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Selling Products -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Selling Products</h3>
+            {% if top_products %}
+            <div class="space-y-3">
+                {% for product in top_products %}
+                <div class="flex justify-between items-center pb-2 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 mr-3">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ product.product__name }}</div>
+                            <div class="text-xs text-gray-500">{{ product.total_quantity }} units sold</div>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium">₹{{ product.total_sales|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="py-6 text-center text-gray-500">
+                <p>No product data available yet</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Orders by Status Pie Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders by Status</h3>
+            <div class="flex flex-col space-y-2">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Pending</span>
+                    </div>
+                    <span class="text-sm font-medium">{{ orders_by_status.pending }} ({{ orders_by_status.pending_percent|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-blue-400 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Processing</span>
+                    </div>
+                    <span class="text-sm font-medium">{{ orders_by_status.processing }} ({{ orders_by_status.processing_percent|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-indigo-400 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Shipped</span>
+                    </div>
+                    <span class="text-sm font-medium">{{ orders_by_status.shipped }} ({{ orders_by_status.shipped_percent|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Delivered</span>
+                    </div>
+                    <span class="text-sm font-medium">{{ orders_by_status.delivered }} ({{ orders_by_status.delivered_percent|floatformat:1 }}%)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Cancelled</span>
+                    </div>
+                    <span class="text-sm font-medium">{{ orders_by_status.cancelled }} ({{ orders_by_status.cancelled_percent|floatformat:1 }}%)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders Over Time Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders Over Last 7 Days</h3>
+        <div class="h-64">
+            <canvas id="ordersChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Filter Options -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">Status:</span>
+                <a href="?status=all" class="px-3 py-1 rounded-full {% if status_filter == 'all' or not status_filter %}bg-gray-200 text-gray-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    All Orders
+                </a>
+                <a href="?status=pending" class="px-3 py-1 rounded-full {% if status_filter == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    Pending
+                </a>
+                <a href="?status=processing" class="px-3 py-1 rounded-full {% if status_filter == 'processing' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    Processing
+                </a>
+                <a href="?status=shipped" class="px-3 py-1 rounded-full {% if status_filter == 'shipped' %}bg-indigo-100 text-indigo-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    Shipped
+                </a>
+                <a href="?status=delivered" class="px-3 py-1 rounded-full {% if status_filter == 'delivered' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    Delivered
+                </a>
+                <a href="?status=cancelled" class="px-3 py-1 rounded-full {% if status_filter == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-600{% endif %} text-sm">
+                    Cancelled
+                </a>
+            </div>
+            <div class="ml-auto">
+                <form action="" method="get" class="flex items-center">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search by order ID or customer..." class="border rounded-l-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-r-md hover:bg-emerald-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Orders Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ order.order_id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ order.consumer.user.get_full_name }}</div>
+                            <div class="text-xs text-gray-500">{{ order.consumer.user.email }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ order.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₹{{ order.total_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if order.status == 'pending' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Pending
+                            </span>
+                            {% elif order.status == 'processing' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Processing
+                            </span>
+                            {% elif order.status == 'shipped' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                Shipped
+                            </span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Delivered
+                            </span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Cancelled
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if order.payment_status == 'paid' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Paid
+                            </span>
+                            {% elif order.payment_status == 'pending' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Pending
+                            </span>
+                            {% elif order.payment_status == 'failed' %}
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Failed
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" onclick="viewOrder('{{ order.order_id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                View
+                            </a>
+                            <div class="relative inline-block text-left">
+                                <button id="orderStatusBtn{{ order.id }}" onclick="toggleDropdown('orderStatusDropdown{{ order.id }}')" class="text-emerald-600 hover:text-emerald-900">
+                                    Update Status
+                                </button>
+                                <div id="orderStatusDropdown{{ order.id }}" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                    <div class="py-1" role="menu" aria-orientation="vertical">
+                                        {% if order.status != 'processing' %}
+                                        <a href="#" onclick="updateOrderStatus({{ order.id }}, 'processing')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Mark as Processing</a>
+                                        {% endif %}
+                                        {% if order.status != 'shipped' %}
+                                        <a href="#" onclick="updateOrderStatus({{ order.id }}, 'shipped')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Mark as Shipped</a>
+                                        {% endif %}
+                                        {% if order.status != 'delivered' %}
+                                        <a href="#" onclick="updateOrderStatus({{ order.id }}, 'delivered')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Mark as Delivered</a>
+                                        {% endif %}
+                                        {% if order.status != 'cancelled' %}
+                                        <a href="#" onclick="updateOrderStatus({{ order.id }}, 'cancelled')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Cancel Order</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No orders found matching the criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing <span class="font-medium">1</span> to <span class="font-medium">{{ recent_orders|length }}</span> of <span class="font-medium">{{ total_orders }}</span> results
+        </div>
+        <div class="flex space-x-2">
+            <a href="#" class="px-3 py-1 border rounded hover:bg-gray-50">Previous</a>
+            <a href="#" class="px-3 py-1 border rounded bg-emerald-600 text-white">1</a>
+            <a href="#" class="px-3 py-1 border rounded hover:bg-gray-50">Next</a>
+        </div>
+    </div>
+    
+    <!-- Order Detail Modal (hidden by default) -->
+    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-3xl w-full max-h-screen overflow-y-auto">
+            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Order Details - <span id="modalOrderId"></span></h3>
+                <button onclick="closeOrderModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6" id="orderModalContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between">
+                <div>
+                    <button onclick="printOrderDetails()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
+                        <i class="fas fa-print mr-2"></i> Print
+                    </button>
+                </div>
+                <div class="space-x-4">
+                    <button onclick="closeOrderModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
+                        Close
+                    </button>
+                    <button id="modalUpdateStatusBtn" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                        Update Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript for functionality -->
+    <script>
+        // Handle dropdowns for order status update
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.absolute').forEach(menu => {
+                if (menu.id !== id && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function closeMenu(event) {
+                if (!event.target.closest('.relative')) {
+                    dropdown.classList.add('hidden');
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+        
+        // Update order status
+        function updateOrderStatus(orderId, status) {
+            // In a real app, you would send an AJAX request to update the status
+            alert(`Order ${orderId} status would be updated to ${status} in a real app`);
+            
+            // For demo purposes, we'll reload the page after a small delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        }
+        
+        // View order details
+        function viewOrder(orderId) {
+            document.getElementById('modalOrderId').textContent = orderId;
+            
+            // Show loading state
+            document.getElementById('orderModalContent').innerHTML = `
+                <div class="text-center py-6">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Loading order details...</p>
+                </div>
+            `;
+            
+            // Show modal
+            document.getElementById('orderModal').classList.remove('hidden');
+            
+            // In a real app, you would fetch order details from the server
+            // For demonstration purposes, we'll simulate the request
+            setTimeout(() => {
+                fetchOrderDetails(orderId);
+            }, 500);
+        }
+        
+        function fetchOrderDetails(orderId) {
+            // This would be an AJAX request in a real app
+            // For now, we'll just simulate the response
+            document.getElementById('orderModalContent').innerHTML = `
+                <div class="space-y-6">
+                    <!-- Order Summary -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-md font-semibold mb-3 pb-2 border-b">Order Information</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Order Date:</span>
+                                    <span class="text-sm">May 15, 2023</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Order Status:</span>
+                                    <span class="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Payment Status:</span>
+                                    <span class="px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full">Paid</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Payment Method:</span>
+                                    <span class="text-sm">Online Payment</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-md font-semibold mb-3 pb-2 border-b">Customer Information</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Name:</span>
+                                    <span class="text-sm">John Doe</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Email:</span>
+                                    <span class="text-sm">john.doe@example.com</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">Phone:</span>
+                                    <span class="text-sm">+91 98765 43210</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Address -->
+                    <div>
+                        <h4 class="text-md font-semibold mb-3 pb-2 border-b">Shipping Address</h4>
+                        <p class="text-sm">
+                            123 Main Street, Apartment 4B<br>
+                            Andheri East, Mumbai - 400069<br>
+                            Maharashtra, India
+                        </p>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div>
+                        <h4 class="text-md font-semibold mb-3 pb-2 border-b">Order Items</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-2 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-8 w-8 bg-emerald-100 rounded flex items-center justify-center text-emerald-500">
+                                                    <i class="fas fa-carrot"></i>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900">Organic Carrots</div>
+                                                    <div class="text-xs text-gray-500">1 kg package</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-right">₹40.00</td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-right">2</td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right font-medium">₹80.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-8 w-8 bg-emerald-100 rounded flex items-center justify-center text-emerald-500">
+                                                    <i class="fas fa-apple-alt"></i>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900">Organic Apples</div>
+                                                    <div class="text-xs text-gray-500">500g package</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-right">₹60.00</td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-right">1</td>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right font-medium">₹60.00</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="bg-gray-50">
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Subtotal:</td>
+                                        <td class="px-4 py-2 text-sm font-medium text-gray-900 text-right">₹140.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Shipping:</td>
+                                        <td class="px-4 py-2 text-sm font-medium text-gray-900 text-right">₹40.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-2 text-sm font-bold text-gray-900 text-right">Total:</td>
+                                        <td class="px-4 py-2 text-sm font-bold text-gray-900 text-right">₹180.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Notes -->
+                    <div>
+                        <h4 class="text-md font-semibold mb-3 pb-2 border-b">Order Notes</h4>
+                        <p class="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">Please deliver in the evening after 6 PM. Leave the package with the security guard if I'm not available.</p>
+                    </div>
+                    
+                    <!-- Order Timeline -->
+                    <div>
+                        <h4 class="text-md font-semibold mb-3 pb-2 border-b">Order Timeline</h4>
+                        <div class="space-y-4">
+                            <div class="flex">
+                                <div class="flex flex-col items-center mr-4">
+                                    <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                    <div class="w-0.5 h-full bg-emerald-500"></div>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Order Placed</p>
+                                    <p class="text-xs text-gray-500">May 15, 2023 - 10:30 AM</p>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <div class="flex flex-col items-center mr-4">
+                                    <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                    <div class="w-0.5 h-full bg-gray-300"></div>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Payment Confirmed</p>
+                                    <p class="text-xs text-gray-500">May 15, 2023 - 10:35 AM</p>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <div class="flex flex-col items-center mr-4">
+                                    <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Processing</p>
+                                    <p class="text-xs text-gray-500">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listener to update status button in modal
+            document.getElementById('modalUpdateStatusBtn').onclick = function() {
+                // In a real app, this would show a dropdown or another modal to update status
+                const status = prompt('Update status to (processing/shipped/delivered/cancelled):');
+                if (status) {
+                    updateOrderStatus(orderId, status);
+                    closeOrderModal();
+                }
+            };
+        }
+        
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+        
+        function printOrderDetails() {
+            // In a real app, this would trigger the browser's print functionality 
+            // or generate a PDF to download
+            alert('This would print or download the order details in a real application');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.relative') && !event.target.id.includes('orderStatusBtn')) {
+                document.querySelectorAll('.absolute').forEach(menu => {
+                    if (!menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+
+<!-- Chart.js Script for Orders Chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+    const chartData = {
+      labels: {{ dates|safe }},
+      datasets: [{
+        label: 'Orders',
+        data: {{ orders_count_by_date|safe }},
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true
+      }]
+    };
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %} 

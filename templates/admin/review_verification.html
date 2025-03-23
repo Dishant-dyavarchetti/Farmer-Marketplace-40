@@ -1,0 +1,228 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Review Verification - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">Farmer Verification Review</h1>
+        <a href="{% url 'farmer_verification' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to All Requests
+        </a>
+    </div>
+    
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Verification Details -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800">Verification Information</h2>
+                    <p class="text-sm text-gray-500">Submitted on {{ verification.submission_date|date:"F d, Y" }}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-semibold
+                    {% if verification.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif verification.status == 'approved' %}bg-green-100 text-green-800
+                    {% elif verification.status == 'rejected' %}bg-red-100 text-red-800{% endif %}">
+                    {{ verification.status|title }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Farmer Information -->
+                <div>
+                    <h3 class="text-md font-semibold mb-4 pb-2 border-b">Farmer Details</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 mr-3">
+                                {% if verification.farmer.profile_picture %}
+                                <img src="{{ verification.farmer.profile_picture.url }}" alt="{{ verification.farmer.user.username }}" class="w-10 h-10 rounded-full">
+                                {% else %}
+                                <i class="fas fa-user"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="font-medium">{{ verification.farmer.user.get_full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ verification.farmer.user.email }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <div class="text-sm text-gray-500">Farm Name</div>
+                                <div>{{ verification.farmer.farm_name|default:"Not specified" }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Location</div>
+                                <div>{{ verification.farmer.farm_location|default:"Not specified" }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">State</div>
+                                <div>{{ verification.farmer.origin_state|default:"Not specified" }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Phone</div>
+                                <div>{{ verification.farmer.phone|default:"Not specified" }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Registered On</div>
+                                <div>{{ verification.farmer.date_joined|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Certification Information -->
+                <div>
+                    <h3 class="text-md font-semibold mb-4 pb-2 border-b">Certification Details</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="text-sm text-gray-500">Certification Type</div>
+                            <div class="font-medium">{{ verification.certification_type }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Certification ID</div>
+                            <div>{{ verification.certification_id }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Valid Until</div>
+                            <div>{{ verification.valid_until|date:"F d, Y" }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Farm Description</div>
+                            <div class="text-sm mt-1 text-gray-700 whitespace-pre-line">{{ verification.farm_description }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Supporting Documents -->
+            <div class="mt-8">
+                <h3 class="text-md font-semibold mb-4 pb-2 border-b">Documents</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Main Certificate -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 border-b">
+                            <h4 class="font-medium">Primary Certificate</h4>
+                        </div>
+                        <div class="p-4">
+                            {% if verification.certificate_document %}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="far fa-file-pdf text-red-500 text-2xl mr-3"></i>
+                                    <div>
+                                        <div class="font-medium">Certification Document</div>
+                                        <div class="text-xs text-gray-500">{{ verification.certificate_document.name|default:"document.pdf" }}</div>
+                                    </div>
+                                </div>
+                                <a href="{{ verification.certificate_document.url }}" target="_blank" class="text-emerald-600 hover:text-emerald-800">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <p class="text-gray-500">No primary certificate document uploaded.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Supporting Documents -->
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 border-b">
+                            <h4 class="font-medium">Supporting Documents</h4>
+                        </div>
+                        <div class="p-4">
+                            {% if supporting_docs %}
+                            <div class="space-y-3">
+                                {% for doc in supporting_docs %}
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="far fa-file text-blue-500 text-2xl mr-3"></i>
+                                        <div>
+                                            <div class="font-medium">{{ doc.document_type }}</div>
+                                            <div class="text-xs text-gray-500">{{ doc.document.name }}</div>
+                                        </div>
+                                    </div>
+                                    <a href="{{ doc.document.url }}" target="_blank" class="text-emerald-600 hover:text-emerald-800">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-gray-500">No supporting documents provided.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviewer Notes (if previously reviewed) -->
+            {% if verification.status != 'pending' and verification.reviewed_by %}
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg border">
+                <h3 class="text-md font-semibold mb-2">Review Notes</h3>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="text-sm">
+                            Reviewed by <span class="font-medium">{{ verification.reviewed_by.get_full_name|default:verification.reviewed_by.username }}</span>
+                            on {{ verification.reviewed_at|date:"F d, Y" }}
+                        </div>
+                        {% if verification.rejection_reason %}
+                        <div class="mt-2 text-sm text-gray-700">
+                            <div class="font-medium">Reason:</div>
+                            <div class="whitespace-pre-line">{{ verification.rejection_reason }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded-full font-medium
+                        {% if verification.status == 'approved' %}bg-green-100 text-green-800
+                        {% elif verification.status == 'rejected' %}bg-red-100 text-red-800{% endif %}">
+                        {{ verification.status|title }}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Review Action Form -->
+    {% if verification.status == 'pending' %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-blue-50 px-6 py-4 border-b border-blue-100">
+            <h2 class="text-lg font-semibold text-gray-800">Review Decision</h2>
+            <p class="text-sm text-gray-500">Approve or reject this verification request</p>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" action="{% url 'review_verification' verification.id %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes (optional for approval, required for rejection)</label>
+                    <textarea id="notes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" name="action" value="approve" class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition">
+                        <i class="fas fa-check mr-2"></i> Approve Verification
+                    </button>
+                    <button type="submit" name="action" value="reject" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        <i class="fas fa-times mr-2"></i> Reject Verification
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
