@@ -39,7 +39,7 @@ MadhyaMukt is a web-based platform designed to connect verified organic farmers 
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/madhyamukt.git
+   git clone https://github.com/Dishant-Dyavarchetti/madhyamukt.git
    cd madhyamukt
    ```
 
@@ -135,5 +135,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 For any inquiries, please contact:
-- Email: info@madhyamukt.com
-- Phone: +91-123-456-7890
+- Email: ddishantmsccs2023@gmail.com
+- Phone: +91 9106754206
